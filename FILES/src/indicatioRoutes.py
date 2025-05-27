@@ -4,6 +4,8 @@ from textToSpeech import speak_text
 from geopy.distance import geodesic as GD
 from geopy.geocoders import Nominatim
 from geopy.geocoders import Nominatim
+# from detectie_semafor import analizeaza_semafor_din_imagine
+# import subprocess, time
 
 PROXIMITY_METERS = 15
 geolocator = Nominatim(user_agent="asistent_navigatie")
@@ -49,6 +51,11 @@ def get_opriri():
 async def comenzi_deplasare(location_queue):
     print("[Asistent] Modulul de ghidare vocală a început.")
     indicatii, coordonate = get_indicatii()
+
+    # with open("treceri_pe_traseu.json","r") as f:
+    #     treceri_pe_traseu = json.load(f)
+    
+
     _, opriri = get_opriri()
 
     pas_curent = 0
@@ -61,6 +68,26 @@ async def comenzi_deplasare(location_queue):
             lng_user = data.get("lng")
             lat_end = coordonate[pas_curent]["latitude"]
             lng_end = coordonate[pas_curent]["longitude"]
+
+            # for zebra in treceri_pe_traseu:
+            #     z_lat = zebra["latitude"]
+            #     z_lng = zebra["longitude"]
+            #     d = calculate_distance(lat_user, lng_user, z_lat, z_lng) * 1000
+
+            #     if d <= PROXIMITY_METERS and (z_lat, z_lng) not in opriri_efectuate:
+            #         print(f"[Semafor] Aproape de trecere la {z_lat}, {z_lng} (d={d:.1f} m)")
+
+            #         img_path = f"zebra_{int(time.time())}.jpg"
+            #         subprocess.run([
+            #             "libcamera-still", "-o", img_path,
+            #             "--width", "640", "--height", "480", "--nopreview"
+            #         ])
+
+            #         rezultat = analizeaza_semafor_din_imagine(img_path)
+            #         print(f"[Semafor] Rezultat: {rezultat}")
+            #         speak_text(f"Trecere de pietoni cu semafor: {rezultat}" if rezultat != "fara semafor" else "Trecere de pietoni fara semafor")
+            #         opriri_efectuate.add((z_lat, z_lng))
+
 
             dist = calculate_distance(lat_user, lng_user, lat_end, lng_end) * 1000  # in metri
             print(f"[Asistent] Distanță până la pasul {pas_curent + 1}: {dist:.1f} m")

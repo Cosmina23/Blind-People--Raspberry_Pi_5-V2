@@ -12,3 +12,9 @@ __pycache__/
 *.mp3
 timisoara.osm.pbf
 timisoara.graphml
+imagini_semafor_test
+imagini_semafor_test_rezult
+*.pt
+*.pbf
+/home/cosmina/Documente/Proiect1/FILES/src/yolov8n.pt
+teste 
