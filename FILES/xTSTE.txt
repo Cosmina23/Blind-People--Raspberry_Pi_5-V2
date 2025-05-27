@@ -1,0 +1,159 @@
+import websockets
+import json
+import asyncio
+from src.takeCredentials import autentificare, reset_credentials
+from src.navigator_maps import obtine_ruta_ors
+from src.indicatioRoutes import comenzi_deplasare
+from textToSpeech import speak_text
+from src.voiceTotext import recognize_speech
+import openrouteservice
+
+current_app = None
+last_location = None
+location_queue = asyncio.Queue()
+
+ORS_API_KEY = "5b3ce3597851110001cf62483ed29d9e4b9b47a58f40e20891efb908"
+client = openrouteservice.Client(key=ORS_API_KEY)  # Client ORS pentru geocodare si directii
+
+async def handle_connection(websocket, path=None):
+    global current_app
+    global last_location
+
+    if current_app:
+        await current_app.close()
+        print("Conexiune curata / Aplicatie anterioara deconectata")
+
+    current_app = websocket
+    print("Conexiune noua stabilita")
+
+    try:
+        print("Astept comenzile utilizatorului...")
+        await autentificare(websocket)
+
+        while True:
+            message = await websocket.recv()
+            print(f"Mesaj primit: {message}")
+
+            try:
+                data = json.loads(message)
+
+                if data.get("message") in ["logout", "user logout"]:
+                    print("Utilizatorul s-a deconectat")
+                    reset_credentials()
+                    break
+
+                msg_type = data.get("type")
+
+                if msg_type == "location":
+                    last_location = (data.get("lat"), data.get("lng"))
+                    print(f"Ultima locatie actualizata: {last_location}")
+                    await location_queue.put(data)  # Trimitem locatia in coada
+
+                elif msg_type == "searchedLocation":
+                    if last_location:
+                        start = last_location
+                        end = (data.get("lat"), data.get("lng"))
+                        print(f"Calculam ruta de la start la finish")
+
+                        # Calculam ruta initiala
+                        indicatii, coordonate_ruta, durata = obtine_ruta_ors(start, end, ORS_API_KEY)
+
+                        speak_text(f"Traseul pana la destinatie dureaza aproximativ {durata} minute.")
+                        speak_text("Vrei sa faci opriri pe drum?")
+                        raspuns = await recognize_speech()
+
+                        opriri = []  # initializam lista cu opriri
+
+                        if "da" in raspuns.lower():
+                            speak_text("Te rog sa imi spui de cate opriri ai nevoie.")
+                            nr_opriri_text = await recognize_speech()
+                            try:
+                                nr_opriri = int(''.join(filter(str.isdigit, nr_opriri_text)))
+                            except:
+                                speak_text("Nu am inteles. Vom continua fara opriri.")
+                                nr_opriri = 0
+
+                            for i in range(nr_opriri):
+                                speak_text(f"Care este oprirea {i+1}?")
+                                adresa_oprire = await recognize_speech()
+                                try:
+                                    geocode = client.pelias_search(text=adresa_oprire)
+                                    coord = geocode['features'][0]['geometry']['coordinates']
+                                    opriri.append((coord[1], coord[0]))  # lat, lng
+                                    speak_text(f"Oprirea {i+1} a fost adaugata.")
+                                except:
+                                    speak_text("Nu am putut intelege locatia. Oprirea va fi ignorata.")
+
+                        # Formam ruta finala: start -> opriri... -> end
+                        toate_punctele = [start] + opriri + [end]
+                        coords = [(lng, lat) for lat, lng in toate_punctele]  # ORS asteapta (lon, lat)
+
+                        try:
+                            result = client.directions(
+                                coordinates=coords,
+                                profile='foot-walking',
+                                format='geojson',
+                                language='ro',
+                                instructions=True
+                            )
+
+                            steps = result['features'][0]['properties']['segments'][0]['steps']
+                            geometry = result['features'][0]['geometry']['coordinates']
+                            duration_sec = result['features'][0]['properties']['segments'][0]['duration']
+                            durata = int(duration_sec // 60)
+
+                            indicatii = []
+                            for step in steps:
+                                instructiune = step['instruction']
+                                dist = step['distance']
+                                if "Directia {" in instructiune or "direction {" in instructiune:
+                                    continue
+                                indicatii.append(f"{instructiune}. Dupa care mergi: {dist:.0f} metri.")
+
+                            coordonate_ruta = [(lat, lng) for lng, lat in geometry]
+
+                            # Confirmare finala de incepere a traseului
+                            speak_text(f"Traseul complet dureaza aproximativ {durata} minute. Vrei sa il incepem?")
+                            raspuns = await recognize_speech()
+
+                            if "da" in raspuns.lower():
+                                with open("indicatii_ruta.txt", "w") as f:
+                                    for indicatie in indicatii:
+                                        f.write(indicatie + "\n")
+                                print("Indicatii salvate in fisierul: indicatii_ruta.txt")
+
+                                with open("coordonate_ruta.json", "w") as f:
+                                    json.dump(
+                                        [{"latitude": lat, "longitude": lng} for lat, lng in coordonate_ruta],
+                                        f,
+                                        indent=2
+                                    )
+                                print("Coordonatele au fost salvate in coordonate_ruta.json")
+
+                                await websocket.send(json.dumps({
+                                    "type": "ruta",
+                                    "coordonate": [{"latitude": lat, "longitude": lng} for lat, lng in coordonate_ruta]
+                                }))
+                                print("S-au trimis coordonatele la aplicatie")
+
+                                asyncio.create_task(comenzi_deplasare(location_queue))
+
+                            else:
+                                speak_text("Traseul a fost anulat.")
+                                print("Traseul a fost anulat de utilizator.")
+
+                        except Exception as e:
+                            print("Eroare la generarea traseului:", e)
+                            speak_text("A aparut o eroare la generarea traseului.")
+            except Exception as e:
+                print(f"Eroare la procesarea mesajului: {e}")
+    except Exception as e:
+        print(f"Eroare necunoscuta in server: {e}")
+    finally:
+        current_app = None
+
+async def start_websocket_server():
+    print("Pornim serverul WebSocket...")
+    server = await websockets.serve(handle_connection, "0.0.0.0", 8765)
+    print("Server WebSocket pornit pe portul 8765")
+    await asyncio.Future()  # Ruleaza la nesfarsit

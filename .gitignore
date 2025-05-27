@@ -1,0 +1,12 @@
+maps.html
+output.mp3
+/home/cosmina/Documente/Proiect1/romania-latest.osm.pbf
+/home/cosmina/Documente/Proiect1/timisoara.osm.pbf
+/home/cosmina/Documente/Proiect1/coordonate_ruta.json
+/home/cosmina/Documente/Proiect1/coordonate_opriri.json
+/home/cosmina/Documente/Proiect1/indicaii_ruta.txt
+/home/cosmina/Documente/Proiect1/indicatii_ruta.txt
+romania-latest.osm.pbf
+*.pyc
+__pycache__/
+*.mp3
