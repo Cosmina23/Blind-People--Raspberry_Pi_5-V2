@@ -32,6 +32,6 @@ async def recognize_speech():
                 print(f"Eroare la conectarea la Google Speech Recognition: {e}")
                 return ""
 
-    # Rulează recunoașterea vocală într-un thread separat
+ 
     text = await asyncio.to_thread(blocking_recognition)
     return text

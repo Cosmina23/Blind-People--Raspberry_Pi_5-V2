@@ -12,7 +12,6 @@ async def main():
     # await send_message(f"User: username, Pass: password")
 
     try:
-        # Pornire server WebSocket
         await start_websocket_server()
     except asyncio.CancelledError:
         print("Serverul WebSocket a fost oprit.")

@@ -2,12 +2,11 @@ import os
 import cv2
 from detectie_semafor import analizeaza_semafor_din_imagine
 
-# Setări foldere
+
 FOLDER_IMAGINI = "imagini_semafor_test"
 FOLDER_REZULTATE = "imagini_semafor_test_rezult"
 os.makedirs(FOLDER_REZULTATE, exist_ok=True)
 
-# Filtrăm imaginile
 extensii_permise = [".jpg", ".jpeg", ".png"]
 imagini = [f for f in os.listdir(FOLDER_IMAGINI) if os.path.splitext(f)[-1].lower() in extensii_permise]
 

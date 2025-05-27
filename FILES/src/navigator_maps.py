@@ -15,15 +15,15 @@ from osmnx.distance import nearest_edges
 def nearest_point_on_edge(g, point):
     u, v, key = nearest_edges(g, point[1], point[0])
     edge_data = g[u][v][key]
-    # Luăm coordonatele nodurilor u și v
+    #coordonatele nodurilor u și v
     lat_u, lon_u = g.nodes[u]['y'], g.nodes[u]['x']
     lat_v, lon_v = g.nodes[v]['y'], g.nodes[v]['x']
 
-    # Proiecția punctului pe segmentul [u,v] (interpolare)
+    # proiecte pt punctului pe segmentul [u,v] (interpolare)
     point_geom = Point(point[1], point[0])
     line = Point(lon_u, lat_u).buffer(0.0001).union(Point(lon_v, lat_v).buffer(0.0001)).convex_hull
     if not line.contains(point_geom):
-        # Dacă punctul nu e între u și v, alegem nodul cel mai apropiat
+        #daca punctul nu e intre u-v, alegem nodul cel mai apropiat
         return u if geodesic((lat_u, lon_u), point).meters < geodesic((lat_v, lon_v), point).meters else v
     return u
 

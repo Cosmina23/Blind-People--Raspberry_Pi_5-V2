@@ -9,9 +9,8 @@ PROXIMITATE_METRI = 10
 with open("treceri_pe_traseu.json", "r") as f:
     treceri = json.load(f)
 
-# Ex: simulăm poziția curentă
+#functie de simualre, se inlocuieste cu coordonatele reale
 def get_user_location():
-    # Înlocuiește cu coordonate reale de la GPS
     return (45.748, 21.23)
 
 treceri_detectate = set()

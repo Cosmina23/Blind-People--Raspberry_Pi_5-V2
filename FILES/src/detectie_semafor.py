@@ -22,7 +22,7 @@ def detect_traffic_light_color(roi):
 def analizeaza_semafor_din_imagine(image_path, folder_rezultate):
     frame = cv2.imread(image_path)
     if frame is None:
-        print("❌ Imagine invalidă:", image_path)
+        print(f'imagine gresita: {image_path}')
         return "fara semafor"
 
     base_name = os.path.splitext(os.path.basename(image_path))[0]
@@ -33,7 +33,7 @@ def analizeaza_semafor_din_imagine(image_path, folder_rezultate):
     results = model(frame)
     names = model.names
 
-    # Salvează imagine cu toate obiectele detectate
+    #imagine cu toate obiectele detectate
     img_all = results[0].plot()
     cv2.imwrite(os.path.join(folder_rezultate, f"{base_name}_ALL.jpg"), img_all)
 
@@ -45,14 +45,14 @@ def analizeaza_semafor_din_imagine(image_path, folder_rezultate):
         x1, y1, x2, y2 = map(int, box.xyxy[0])
         roi = frame[y1:y2, x1:x2]
 
-        # Salvează fiecare ROI
+        #imagine cu fiecare ROI detectat
         roi_name = f"{base_name}_ROI_{idx}_{label}.jpg"
         cv2.imwrite(os.path.join(folder_rezultate, roi_name), roi)
 
         if label == "traffic light":
             culoare = detect_traffic_light_color(roi)
             if culoare in ["YELLOW", "UNKNOWN"]:
-                continue  # ignorăm
+                continue  #daca e semafor de culaore galbena(masini) sau nu se detecteaza culoarea(semafor de masini sau din lateral)
 
             center_box = ((x1 + x2) // 2, (y1 + y2) // 2)
             dist_to_center = np.linalg.norm(np.array(center_box) - np.array(center_image))
@@ -63,18 +63,18 @@ def analizeaza_semafor_din_imagine(image_path, folder_rezultate):
                 "distanta": dist_to_center
             })
 
-    # Dacă nu avem niciunul valid:
+    #daca nu sunt semafoare
     if not semafoare_utilizabile:
         return "fara semafor"
 
-    # ✅ Dacă e exact unul valid → îl luăm fără comparații
+    #daca e doar un semafor detectat se ia acela
     if len(semafoare_utilizabile) == 1:
         cel_ales = semafoare_utilizabile[0]
     else:
-        # Dacă sunt mai mulți → alegem cel mai apropiat de centru
+        #mai multe semadfoare => cel mai apropiat de centru
         cel_ales = min(semafoare_utilizabile, key=lambda x: x["distanta"])
 
-    # Salvează doar imaginea finală cu semaforul ALES
+    # imagine finala
     x1, y1, x2, y2 = cel_ales["box"]
     culoare = cel_ales["culoare"]
 
