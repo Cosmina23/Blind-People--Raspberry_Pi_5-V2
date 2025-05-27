@@ -10,3 +10,5 @@ romania-latest.osm.pbf
 *.pyc
 __pycache__/
 *.mp3
+timisoara.osm.pbf
+timisoara.graphml
