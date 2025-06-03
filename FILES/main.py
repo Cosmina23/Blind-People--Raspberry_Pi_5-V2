@@ -1,5 +1,6 @@
 import asyncio
 
+print("START MAIN")
 from webSocketServer import start_websocket_server
 
 print("START MAIN")

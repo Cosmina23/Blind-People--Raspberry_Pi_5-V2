@@ -8,9 +8,11 @@ import folium
 import openrouteservice
 import json
 from shapely.geometry import Point
-from networkx import shortest_path
 from osmnx.distance import nearest_edges
 
+print("CEVA")
+from my_dijkstra import my_shortest_path_dijkstra
+print("CEVAs")
 
 def nearest_point_on_edge(g, point):
     u, v, key = nearest_edges(g, point[1], point[0])
@@ -84,7 +86,7 @@ def obtine_ruta(start, end, fol_edge_for_poi=False):
     else:
         end_node = nearest_node(timisoara_g, end)
 
-    ruta = nx.shortest_path(timisoara_g, start_node, end_node, weight='length')
+    ruta =  my_shortest_path_dijkstra(timisoara_g, start_node, end_node, weight='length')
 
     indicatii = []
     for i in range(len(ruta) - 2):

@@ -15,10 +15,10 @@ print(f"\n📷 Găsite {len(imagini)} imagini pentru test...\n")
 for nume in imagini:
     cale = os.path.join(FOLDER_IMAGINI, nume)
 
-    print(f"🔎 Procesăm {nume}...")
+    print(f" Procesăm {nume}...")
     rezultat = analizeaza_semafor_din_imagine(cale, FOLDER_REZULTATE)
 
     if rezultat == "fara semafor":
-        print(f"⚠️  {nume}: Nu a fost identificat niciun semafor valid.")
+        print(f" {nume}: Nu a fost identificat niciun semafor valid.")
     else:
-        print(f"✅ {nume}: Semafor detectat — culoare: {rezultat}")
+        print(f" {nume}: Semafor detectat — culoare: {rezultat}")

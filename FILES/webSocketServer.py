@@ -3,7 +3,6 @@ import json
 import asyncio
 from src.takeCredentials import autentificare, reset_credentials
 from src.navigator_maps import obtine_ruta
-from src.navigator_maps import obtine_ruta
 from src.indicatioRoutes import comenzi_deplasare
 from textToSpeech import speak_text
 from voiceToText import recognize_speech
