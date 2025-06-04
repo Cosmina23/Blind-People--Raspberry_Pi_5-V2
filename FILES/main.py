@@ -1,9 +1,16 @@
 import asyncio
-
 print("START MAIN")
-from webSocketServer import start_websocket_server
 
-print("START MAIN")
+import sys
+import traceback
+
+try:
+    from webSocketServer import start_websocket_server
+except Exception as e:
+    print("EROARE LA IMPORT:")
+    traceback.print_exc(file=sys.stdout)
+    raise e  # OBLIGĂ afișarea completă și oprește programul
+
 
 async def main():
     print("Serverul Websocket porneste...")

@@ -1,5 +1,4 @@
 import osmnx as ox 
-import networkx as nx 
 from geopy.distance import geodesic
 from gtts import gTTS
 import os 
@@ -11,7 +10,7 @@ from shapely.geometry import Point
 from osmnx.distance import nearest_edges
 
 print("CEVA")
-from my_dijkstra import my_shortest_path_dijkstra
+from src.my_dijkstra import bidirectional_dijkstra
 print("CEVAs")
 
 def nearest_point_on_edge(g, point):
@@ -86,7 +85,7 @@ def obtine_ruta(start, end, fol_edge_for_poi=False):
     else:
         end_node = nearest_node(timisoara_g, end)
 
-    ruta =  my_shortest_path_dijkstra(timisoara_g, start_node, end_node, weight='length')
+    length, ruta =  bidirectional_dijkstra(timisoara_g, start_node, end_node, weight='length')
 
     indicatii = []
     for i in range(len(ruta) - 2):
