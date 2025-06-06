@@ -10,8 +10,15 @@ from shapely.geometry import Point
 from osmnx.distance import nearest_edges
 
 print("CEVA")
-from src.my_dijkstra import bidirectional_dijkstra
+from src.my_dijkstra import bidirectional_dijkstra_modificat
 print("CEVAs")
+
+fisier_vizite = "/home/cosmina/Documente/Proiect1/vizite.json"
+with open(fisier_vizite, "r", encoding="utf-8") as f:
+    vizite = json.load(f)
+
+lista_vizite = vizite.get("locuri", [])
+
 
 def nearest_point_on_edge(g, point):
     u, v, key = nearest_edges(g, point[1], point[0])
@@ -78,6 +85,8 @@ def obtine_ruta(start, end, fol_edge_for_poi=False):
         ox.save_graphml(timisoara_g, "timisoara.graphml")
     else:
         timisoara_g = ox.load_graphml("timisoara.graphml")
+        for node,data in timisoara_g.nodes(data = True):
+            data['coord'] = (data['y'], data['x'])
 
     start_node = nearest_node(timisoara_g, start)
     if fol_edge_for_poi:
@@ -85,7 +94,7 @@ def obtine_ruta(start, end, fol_edge_for_poi=False):
     else:
         end_node = nearest_node(timisoara_g, end)
 
-    length, ruta =  bidirectional_dijkstra(timisoara_g, start_node, end_node, weight='length')
+    length, ruta =  bidirectional_dijkstra_modificat(timisoara_g, start_node, end_node, lista_vizite)
 
     indicatii = []
     for i in range(len(ruta) - 2):

@@ -182,18 +182,26 @@ async def handle_connection(websocket, path=None):
     try:
         print("Aștept comenzile utilizatorului...")
         await autentificare(websocket)
-
         while last_location is None:
             message = await websocket.recv()
             try:
                 data = json.loads(message)
+
                 if data.get("type") == "location":
                     last_location = (data.get("lat"), data.get("lng"))
                     await location_queue.put(data)
-                    print(f"Locație inițială setată: {last_location}")
+                    print(f"Locatie initiala setat:a {last_location}")
+
+                elif data.get("type") == "locuri_vizitate":
+                    try:
+                        with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
+                            print(f'Fisierul vizite.json a fost actualizat ')
+                            json.dump(data, f, indent=2, ensure_ascii=False)
+                    except Exception as e:
+                        print(f'[Eroare] Salvare vizite.json: {e}')
+
             except:
                 continue
-
         speak_text("Spuneți adresa unde doriți să ajungeți.")
         destinatie = await recognize_speech()
         print(f"[Asistent] Destinație rostită: {destinatie}")
@@ -295,6 +303,13 @@ async def handle_connection(websocket, path=None):
                 if data.get("type") == "location":
                     last_location = (data.get("lat"), data.get("lng"))
                     await location_queue.put(data)
+                elif data.get("type") == "locuri_vizitate":
+                    try:
+                        with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
+                            print(f'Fisierul vizite.json a fost actualizat')
+                            json.dump(data, f, indent =2, ensure_ascii = False)
+                    except Exception as e :
+                        print(f'Eroare la salvarea fisierului vizite.json: {e}')
             except:
                 continue
 
