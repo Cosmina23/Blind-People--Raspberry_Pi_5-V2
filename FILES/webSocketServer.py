@@ -1,6 +1,7 @@
 import websockets
 import json
 import asyncio
+from geopy.distance import geodesic
 from src.takeCredentials import autentificare, reset_credentials
 from src.navigator_maps import obtine_ruta
 from src.indicatioRoutes import comenzi_deplasare
@@ -51,7 +52,33 @@ async def cauta_poi(traseu_coord, categorie_poi):
     except Exception as e:
         print(f'[POI] Eroare la cautare poi: {e}')
         return None 
- 
+
+def elimina_coord_duplicate(lista):
+    if not lista:
+        return []
+    rezultat = [lista[0]]
+    for coord in lista[1:]:
+        if coord != rezultat[-1]:
+            rezultat.append(coord)
+    return rezultat
+
+
+def insereaza_oprire_in_traseu(traseu, oprire_coord):
+    dmin = float('inf')
+    index_apropiat = -1
+    for idx, punct in enumerate(traseu):
+        dist = geodesic(punct, oprire_coord).meters
+        if dist < dmin:
+            dmin = dist
+            index_apropiat = idx
+    punct_apropiat = traseu[index_apropiat]
+    traseu_modificat = (
+        traseu[:index_apropiat+1] +
+        [oprire_coord, punct_apropiat] +
+        traseu[index_apropiat+1:]
+    )
+    return traseu_modificat
+
 
 async def handle_connection(websocket, path=None):
     global current_app
@@ -249,23 +276,30 @@ async def handle_connection(websocket, path=None):
                     print(f"[POI] Eroare la căutarea POI: {e}")
                     speak_text("A apărut o eroare la căutarea punctului de interes.")
 
-        puncte = [last_location] + opriri + [end]
+        puncte = [last_location, end]
+        coordonate_initiale = obtine_ruta(last_location, end)[1]
+
+        if opriri:
+            puncte = insereaza_oprire_in_traseu(coordonate_initiale, opriri[0])
+
         indicatii_totale = []
         coordonate_totale = []
         durata_totala = 0
 
         for i in range(len(puncte) - 1):
-            fol_poi = (i < len(puncte) - 1) and (puncte[i+1] in opriri)
+            fol_poi = (opriri and puncte[i+1] == opriri[0])
             indicatii_partial, coordonate_partial, durata = obtine_ruta(
-            puncte[i], puncte[i + 1],
-            fol_edge_for_poi = fol_poi
-        )
-
+                puncte[i], puncte[i + 1],
+                fol_edge_for_poi=fol_poi
+            )
             indicatii_totale.extend(indicatii_partial)
             coordonate_totale.extend(coordonate_partial if i == 0 else coordonate_partial[1:])
             durata_totala += durata
 
+
         speak_text(f"Traseul complet durează aproximativ {durata_totala} minute.")
+
+        # coordonate_totale = elimina_coord_duplicate(coordonate_totale)
 
         with open("indicatii_ruta.txt", "w") as f:
             for indicatie in indicatii_totale:
