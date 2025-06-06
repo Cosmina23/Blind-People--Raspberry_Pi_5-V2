@@ -79,7 +79,7 @@ def salveaza_harta(graf, ruta, extra_points=None):
     m.save('maps.html')
 
 
-def obtine_ruta(start, end, fol_edge_for_poi=False):
+def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar = None):
     if not os.path.exists("timisoara.graphml"):
         timisoara_g = ox.graph_from_place("Timișoara, Romania", network_type="walk")
         ox.save_graphml(timisoara_g, "timisoara.graphml")
@@ -94,7 +94,7 @@ def obtine_ruta(start, end, fol_edge_for_poi=False):
     else:
         end_node = nearest_node(timisoara_g, end)
 
-    length, ruta =  bidirectional_dijkstra_modificat(timisoara_g, start_node, end_node, lista_vizite)
+    length, ruta =  bidirectional_dijkstra_modificat(timisoara_g, start_node, end_node, lista_vizite, nod_intermediar=nod_familiar)
 
     indicatii = []
     for i in range(len(ruta) - 2):

@@ -13,6 +13,7 @@ from test_osmnx import gaseste_puncte_pe_traseu
 # import openrouteservice
 
 
+
 current_app = None
 last_location = None
 location_queue = asyncio.Queue()
@@ -53,6 +54,38 @@ async def cauta_poi(traseu_coord, categorie_poi):
         print(f'[POI] Eroare la cautare poi: {e}')
         return None 
 
+
+
+def scor_familiaritate(coord, distanta, nr_vizite, distanta_maxima = 2000):
+    if distanta > distanta_maxima:
+        return 0
+    scor = nr_vizite * (1 - (distanta / distanta_maxima))
+    return max(scor, 0)
+
+
+
+def gaseste_nod_familiar(source_coord, target_coord, vizite_json):
+    best_nod = None
+    best_scor = -1
+    dist_directa = geodesic(source_coord, target_coord).meters
+
+    for punct in vizite_json:
+        coord = (punct["lat"], punct["lng"])
+        nr_vizite = punct["nr_vizite"]
+
+        dist_la_start = geodesic(source_coord, coord).meters
+        dist_la_final = geodesic(coord, target_coord).meters
+        total_dist = dist_la_start + dist_la_final
+
+        scor = scor_familiaritate(coord, total_dist, nr_vizite)
+        print(f"[DEBUG] Candidat: {coord} | Total dist: {total_dist:.1f}m | Scor: {scor:.2f}")
+
+        if scor > best_scor:
+            best_scor = scor
+            best_nod = coord
+
+    return best_nod
+
 def elimina_coord_duplicate(lista):
     if not lista:
         return []
@@ -61,6 +94,14 @@ def elimina_coord_duplicate(lista):
         if coord != rezultat[-1]:
             rezultat.append(coord)
     return rezultat
+
+def decide_traseu(start, oprire, destinatie, nod_familiar=None):
+    traseu = [start]
+    if nod_familiar:
+        traseu.append(nod_familiar)
+    traseu.append(oprire)
+    traseu.append(destinatie)
+    return traseu
 
 
 def insereaza_oprire_in_traseu(traseu, oprire_coord):
@@ -79,6 +120,12 @@ def insereaza_oprire_in_traseu(traseu, oprire_coord):
     )
     return traseu_modificat
 
+
+fisier_vizite = "/home/cosmina/Documente/Proiect1/vizite.json"
+with open(fisier_vizite, "r", encoding="utf-8") as f:
+    vizite = json.load(f)
+
+lista_vizite = vizite.get("locuri", [])
 
 async def handle_connection(websocket, path=None):
     global current_app
@@ -277,29 +324,45 @@ async def handle_connection(websocket, path=None):
                     speak_text("A apărut o eroare la căutarea punctului de interes.")
 
         puncte = [last_location, end]
-        coordonate_initiale = obtine_ruta(last_location, end)[1]
 
         if opriri:
-            puncte = insereaza_oprire_in_traseu(coordonate_initiale, opriri[0])
+            # dacă avem opriri, ne pregătim să decidem traseul corect
+            traseu_logical = []
+            nod_familiar = gaseste_nod_familiar(last_location, end, lista_vizite)
+            traseu_logical = decide_traseu(last_location, opriri[0], end, nod_familiar)
+        elif nod_familiar:
+            traseu_logical = [last_location, nod_familiar, end]
+        else:
+            traseu_logical = [last_location, end]
+
 
         indicatii_totale = []
         coordonate_totale = []
         durata_totala = 0
 
-        for i in range(len(puncte) - 1):
-            fol_poi = (opriri and puncte[i+1] == opriri[0])
+        for i in range(len(traseu_logical) - 1):
+            p_start = traseu_logical[i]
+            p_end = traseu_logical[i + 1]
+    
+            # nod_familiar se folosește doar o singură dată (între start și oprire, sau start și end dacă nu avem oprire)
+            fol_nod_familiar = None
+            if nod_familiar:
+                if (p_start == last_location and (not opriri or p_end == opriri[0])):
+                    fol_nod_familiar = nod_familiar  # îl folosim doar o dată și doar pe prima secțiune relevantă
+
             indicatii_partial, coordonate_partial, durata = obtine_ruta(
-                puncte[i], puncte[i + 1],
-                fol_edge_for_poi=fol_poi
+                p_start, p_end,
+                fol_edge_for_poi=(p_end in opriri),
+                nod_familiar=fol_nod_familiar
             )
+
             indicatii_totale.extend(indicatii_partial)
             coordonate_totale.extend(coordonate_partial if i == 0 else coordonate_partial[1:])
             durata_totala += durata
 
-
         speak_text(f"Traseul complet durează aproximativ {durata_totala} minute.")
 
-        # coordonate_totale = elimina_coord_duplicate(coordonate_totale)
+        coordonate_totale = elimina_coord_duplicate(coordonate_totale)
 
         with open("indicatii_ruta.txt", "w") as f:
             for indicatie in indicatii_totale:
