@@ -254,7 +254,7 @@ async def handle_connection(websocket, path=None):
 
 
     try:
-        print("Aștept comenzile utilizatorului...")
+        print("Aștept comenzile utilizatorului")
         await autentificare(websocket)
         while last_location is None:
             message = await websocket.recv()
@@ -286,9 +286,10 @@ async def handle_connection(websocket, path=None):
             speak_text("Locația nu a fost identificată. Încercați din nou mai târziu.")
             return
 
-        opriri = []
-        alege_cu_oprire = False
+        indicatii, coordonate_ruta, durata_traseu = obtine_ruta(last_location, end)
+        speak_text(f"Traseul până la destinație durează aproximativ {durata_traseu} minute")
 
+        opriri = []
         speak_text("Doriți să faceți opriri pe drum? De exemplu, să căutăm un magazin?")
         raspuns = await recognize_speech()
 
@@ -308,7 +309,8 @@ async def handle_connection(websocket, path=None):
                         end=end,
                         nume_pbf=pbf_path,
                         categorie=categorie,
-                        max_rezultate=1
+                        max_rezultate=1,
+                        coordonate_traseu = coordonate_ruta
                     )
 
                     if poi_coord:
@@ -317,18 +319,16 @@ async def handle_connection(websocket, path=None):
                         confirmare = await recognize_speech()
                         if any(cuv in confirmare.lower() for cuv in ["da", "sigur", "ok", "vreau"]):
                             opriri.append(poi_coord[0])
-                            alege_cu_oprire = True
 
                 except Exception as e:
                     print(f"[POI] Eroare la căutarea POI: {e}")
                     speak_text("A apărut o eroare la căutarea punctului de interes.")
 
-        puncte = [last_location, end]
+        nod_familiar = gaseste_nod_familiar(last_location, end, lista_vizite)
 
         if opriri:
             # dacă avem opriri, ne pregătim să decidem traseul corect
             traseu_logical = []
-            nod_familiar = gaseste_nod_familiar(last_location, end, lista_vizite)
             traseu_logical = decide_traseu(last_location, opriri[0], end, nod_familiar)
         elif nod_familiar:
             traseu_logical = [last_location, nod_familiar, end]

@@ -9,7 +9,15 @@ def scor_calitate(row):
         scor += 1
     return scor
 
-def gaseste_puncte_pe_traseu(start, end, nume_pbf, categorie="pharmacy", max_rezultate=3):
+
+def dist_minim_fata_de_traseu(start, end, coordonate_traseu, row):
+    loc = (row["lat"], row["lon"])
+    if coordonate_traseu:
+        return min(geodesic(loc, start).meters for punct in coordonate_traseu)
+    else:
+        return min(geodesic(loc, start).meters, geodesic(loc, end).meters)
+
+def gaseste_puncte_pe_traseu(start, end, nume_pbf, categorie="pharmacy", max_rezultate=3, coordonate_traseu = None):
     try:
         osm = OSM(nume_pbf)
 
@@ -41,11 +49,8 @@ def gaseste_puncte_pe_traseu(start, end, nume_pbf, categorie="pharmacy", max_rez
 
         pois_valid["scor"] = pois_valid.apply(scor_calitate, axis=1)
 
-        def dist_minim(row):
-            loc = (row["lat"], row["lon"])
-            return min(geodesic(loc, start).meters, geodesic(loc, end).meters)
 
-        pois_valid["dist_traseu"] = pois_valid.apply(dist_minim, axis=1)
+        pois_valid["dist_traseu"] = pois_valid.apply( lambda row: dist_minim_fata_de_traseu(start, end, coordonate_traseu, row), axis=1)
 
         
         pois_valid = pois_valid.sort_values(by=["dist_traseu", "scor"], ascending=[True, False])
