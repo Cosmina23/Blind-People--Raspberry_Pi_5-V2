@@ -1,12 +1,12 @@
 {
   "type": "locuri_vizitate",
-  "user": "Cosmina",
   "locuri": [
     {
       "data": "2025-06-06",
       "lat": 45.7304,
       "lng": 21.2546,
       "nr_vizite": 1,
+      "nume_loc": "Intrare calea urseni",
       "nume_utilizator": "Cosmina"
     }
   ]

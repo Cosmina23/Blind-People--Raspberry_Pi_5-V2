@@ -47,6 +47,17 @@ def get_opriri():
         return coordonate, opriri
     except:
         return [], []
+    
+def incarca_locatii_vizitate(user_name="Cosmina"):
+    try:
+        with open("vizite.json", "r") as f:
+            data = json.load(f)
+            if data.get("user") == user_name:
+                return data.get("locuri", [])
+    except Exception as e:
+        print(f"[VIZITE] Eroare la citire vizite.json: {e}")
+    return []
+
 
 async def comenzi_deplasare(location_queue):
     print("[Asistent] Modulul de ghidare vocală a început.")
@@ -60,6 +71,38 @@ async def comenzi_deplasare(location_queue):
 
     pas_curent = 0
     opriri_efectuate = set()
+
+    # 1. Incarca locatiile vizitate (noduri familiare)
+    locatii_vizitate = incarca_locatii_vizitate(user_name=data.get("user", "Cosmina"))
+    locatii_familiare = []
+
+    for loc_viz in locatii_vizitate:
+        for idx, punct in enumerate(coordonate):
+            dist = calculate_distance(punct["latitude"], punct["longitude"], loc_viz["lat"], loc_viz["lng"]) * 1000
+            if dist <= PROXIMITY_METERS:
+                locatii_familiare.append({
+                    "nume": loc_viz.get("nume_loc", "loc cunoscut"),
+                    "index": idx
+                })
+
+    if locatii_familiare:
+        loc_familiar = sorted(locatii_familiare, key=lambda x: x["index"])[0]  # cel mai apropiat în ordine
+        msg_intro = f"Traseul include locația cunoscută salvată cu numele {loc_familiar['nume']}."
+
+        # Verificăm dacă există opriri înainte de acea locație
+        opriri_inainte = []
+        for oprire in opriri:
+            for i in range(0, loc_familiar["index"]):
+                punct = coordonate[i]
+                dist = calculate_distance(punct["latitude"], punct["longitude"], oprire["latitude"], oprire["longitude"]) * 1000
+                if dist <= PROXIMITY_METERS:
+                    opriri_inainte.append(oprire)
+
+        if opriri_inainte:
+            msg_intro += f" Dar mai întâi ajungem la oprirea intermediară."
+
+        print("[Asistent] Mesaj introductiv:", msg_intro)
+        speak_text(msg_intro)
 
     while pas_curent < len(coordonate):
         try:
