@@ -97,11 +97,23 @@ def elimina_coord_duplicate(lista):
 
 def decide_traseu(start, oprire, destinatie, nod_familiar=None):
     traseu = [start]
-    if nod_familiar:
+
+    if nod_familiar and oprire:
+        d_start_oprire = geodesic(start, oprire).meters
+        d_start_nod = geodesic(start, nod_familiar).meters
+
+        if d_start_oprire < d_start_nod:
+            traseu += [oprire, nod_familiar]
+        else:
+            traseu += [nod_familiar, oprire]
+    elif nod_familiar:
         traseu.append(nod_familiar)
-    traseu.append(oprire)
+    elif oprire:
+        traseu.append(oprire)
+
     traseu.append(destinatie)
     return traseu
+
 
 
 def insereaza_oprire_in_traseu(traseu, oprire_coord):

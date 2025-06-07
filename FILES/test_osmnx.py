@@ -20,8 +20,14 @@ def dist_minim_fata_de_traseu(start, end, coordonate_traseu, row):
 def gaseste_puncte_pe_traseu(start, end, nume_pbf, categorie="pharmacy", max_rezultate=3, coordonate_traseu = None):
     try:
         osm = OSM(nume_pbf)
+        if categorie == "supermarket":
+            pois = osm.get_pois(custom_filter={
+                "amenity": ["supermarket"],
+                "shop": ["supermarket", "convenience"]
+            })
+        else:
+            pois = osm.get_pois(custom_filter={"amenity": [categorie]})
 
-        pois = osm.get_pois(custom_filter={"amenity": [categorie]})
 
         if pois is None or pois.empty:
             print(f"[INFO] Nu am găsit POI-uri pentru categoria: {categorie}")
