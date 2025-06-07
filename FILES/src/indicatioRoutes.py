@@ -135,17 +135,19 @@ async def comenzi_deplasare(location_queue):
             dist = calculate_distance(lat_user, lng_user, lat_end, lng_end) * 1000  # in metri
             print(f"[Asistent] Distanță până la pasul {pas_curent + 1}: {dist:.1f} m")
 
-            if 5 <= dist <= PROXIMITY_METERS:
+            if 1.5 <= dist <= 3:
                 instructiune = indicatii[pas_curent]
-                mesaj = f"In aproximativ 5 metri, {instructiune.lower()}."
-                print(f"[Asistent] Instrucțiune: {mesaj}")
+                mesaj = f"În câțiva pași, {instructiune.lower()}."
+                print(f"[Asistent] Instrucțiune anticipată: {mesaj}")
                 speak_text(mesaj)
-            elif dist < 5:
+
+            elif dist < 1.5:
                 instructiune = indicatii[pas_curent]
-                mesaj = f"Acum, {instructiune.lower()}"
-                print(f"[Asistent] Instrucțiune: {mesaj}")
+                mesaj = f"Acum, {instructiune.lower()}."
+                print(f"[Asistent] Instrucțiune finală: {mesaj}")
                 speak_text(mesaj)
                 pas_curent += 1
+
 
             for oprire in opriri:
                 o_lat = oprire["latitude"]

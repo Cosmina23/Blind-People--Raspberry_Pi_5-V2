@@ -103,11 +103,15 @@ def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar = None):
         lat2, lon2 = timisoara_g.nodes[v]['y'], timisoara_g.nodes[v]['x']
         lat3, lon3 = timisoara_g.nodes[w]['y'], timisoara_g.nodes[w]['x']
 
-        distanta = geodesic((lat1, lon1), (lat2, lon2)).meters
         angle = calculeaza_unghi((lat1, lon1), (lat2, lon2), (lat3, lon3))
         indicatie_directie = genereaza_indicatie(angle)
-        mesaj = f"Mergi aproximativ {distanta:.1f} metri, apoi {indicatie_directie}"
-        indicatii.append(mesaj)
+
+        anticipare = f"În câțiva pași, {indicatie_directie.lower()}."
+        final = f"Acum, {indicatie_directie.lower()}."
+
+        indicatii.append(anticipare)
+        indicatii.append(final)
+
 
     total_distance = sum(
         geodesic(
