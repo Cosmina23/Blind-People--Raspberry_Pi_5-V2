@@ -399,6 +399,7 @@ async def handle_connection(websocket, path=None):
             "locatie_start_lng": last_location[1],
             "locatie_end_lat": end[0],
             "locatie_end_lng": end[1],
+            "destinatie_nume": destinatie,
             "opriri": [{"latitude": lat, "longitude": lng} for lat, lng in opriri]
         }))
 
