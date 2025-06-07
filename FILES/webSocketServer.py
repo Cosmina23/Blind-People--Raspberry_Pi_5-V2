@@ -308,7 +308,7 @@ async def handle_connection(websocket, path=None):
         if any(cuv in raspuns.lower() for cuv in ["farmacie", "magazin", "cafenea", "restaurant", "benzinărie", "benzinarie"]):
             categorie = None
             if "farmacie" in raspuns.lower(): categorie = "pharmacy"
-            elif "magazin" in raspuns.lower(): categorie = "supermarket"
+            elif "magazin" or "profi" in raspuns.lower(): categorie = "supermarket"
             elif "cafenea" in raspuns.lower(): categorie = "cafe"
             elif "benzinarie" in raspuns.lower() or "benzinărie" in raspuns.lower(): categorie = "fuel"
             elif "restaurant" in raspuns.lower(): categorie = "restaurant"
@@ -357,15 +357,15 @@ async def handle_connection(websocket, path=None):
             p_end = traseu_logical[i + 1]
     
             # nod_familiar se folosește doar o singură dată (între start și oprire, sau start și end dacă nu avem oprire)
-            fol_nod_familiar = None
-            if nod_familiar:
-                if (p_start == last_location and (not opriri or p_end == opriri[0])):
-                    fol_nod_familiar = nod_familiar  # îl folosim doar o dată și doar pe prima secțiune relevantă
+            # fol_nod_fstart == last_location and (not opriri or p_end == opriri[0])):
+            #         foamiliar = None
+            # if nod_familiar:
+            #     if (p_l_nod_familiar = nod_familiar  # îl folosim doar o dată și doar pe prima secțiune relevantă
 
             indicatii_partial, coordonate_partial, durata = obtine_ruta(
                 p_start, p_end,
                 fol_edge_for_poi=(p_end in opriri),
-                nod_familiar=fol_nod_familiar
+                nod_familiar=None
             )
 
             indicatii_totale.extend(indicatii_partial)

@@ -25,8 +25,26 @@ def gaseste_puncte_pe_traseu(start, end, nume_pbf, categorie="pharmacy", max_rez
                 "amenity": ["supermarket"],
                 "shop": ["supermarket", "convenience"]
             })
+        elif categorie == "pharmacy":
+            pois = osm.get_pois(custom_filter={
+                "amenity": ["pharmacy"],
+                "healthcare": ["pharmacy"]
+            })
+        elif categorie == "cafe":
+            pois = osm.get_pois(custom_filter={
+                "amenity": ["cafe"]
+            })
+        elif categorie == "restaurant":
+            pois = osm.get_pois(custom_filter={
+                "amenity": ["restaurant"]
+            })
+        elif categorie == "fuel":
+            pois = osm.get_pois(custom_filter={
+                "amenity": ["fuel"]
+            })
         else:
             pois = osm.get_pois(custom_filter={"amenity": [categorie]})
+
 
 
         if pois is None or pois.empty:
@@ -53,13 +71,13 @@ def gaseste_puncte_pe_traseu(start, end, nume_pbf, categorie="pharmacy", max_rez
         pois_valid["lat"] = pois_valid.geometry.y
         pois_valid["lon"] = pois_valid.geometry.x
 
-        pois_valid["scor"] = pois_valid.apply(scor_calitate, axis=1)
+        # pois_valid["scor"] = pois_valid.apply(scor_calitate, axis=1)
 
 
         pois_valid["dist_traseu"] = pois_valid.apply( lambda row: dist_minim_fata_de_traseu(start, end, coordonate_traseu, row), axis=1)
 
         
-        pois_valid = pois_valid.sort_values(by=["dist_traseu", "scor"], ascending=[True, False])
+        pois_valid = pois_valid.sort_values(by=["dist_traseu"], ascending=[True])
 
         coord_pois = pois_valid[["lat", "lon"]].values.tolist()
         return coord_pois[:max_rezultate]
