@@ -3,11 +3,11 @@ from pyrosm import OSM
 from geopy.distance import geodesic
 
 #preia coordonate traseu
-with open("../coordonate_ruta.json", "r") as f:
+with open("coordonate_ruta.json", "r") as f:
     coordonate_ruta = [(pt["latitude"], pt["longitude"]) for pt in json.load(f)]
 
 
-osm = OSM("../timisoara.osm.pbf")
+osm = OSM("timisoara.osm.pbf")
 crossings = osm.get_pois(custom_filter={"highway": ["crossing"]})
 
 def gaseste_treceri_fix_pe_traseu(coordonate_ruta, toate_trecerile, prag_metri=3):

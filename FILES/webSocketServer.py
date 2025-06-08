@@ -10,8 +10,10 @@ from voiceToText import recognize_speech
 from src.indicatioRoutes import geocode_adresa
 import osmnx as ox
 from test_osmnx import gaseste_puncte_pe_traseu
+from src.monitorizare_trecere import monitorizare_treceri
 # import openrouteservice
-
+from src.detectare_treceri_traseu import gaseste_treceri_fix_pe_traseu
+from pyrosm import OSM
 
 
 current_app = None
@@ -20,6 +22,56 @@ location_queue = asyncio.Queue()
 
 ORS_API_KEY = "5b3ce3597851110001cf62483ed29d9e4b9b47a58f40e20891efb908"
 # client = openrouteservice.Client(key=ORS_API_KEY)
+
+
+def genereaza_treceri_din_traseu(coordonate_ruta):
+    try:
+        print("Generăm treceri de pietoni de pe traseu...")
+        pbf_path = "/home/cosmina/Documente/Proiect1/timisoara.osm.pbf"
+        osm = OSM(pbf_path)
+        crossings = osm.get_pois(custom_filter={"highway": ["crossing"]})
+
+        treceri = gaseste_treceri_fix_pe_traseu(coordonate_ruta, crossings)
+
+        with open("treceri_pe_traseu.json", "w") as f:
+            json.dump(treceri, f, indent=2)
+        print(f"Treceri salvate: {len(treceri)}")
+    except Exception as e:
+        print(f"[Eroare treceri pietoni]: {e}")
+
+async def primeste_mesaje(websocket):
+    global last_location
+    while True:
+        try:
+            message = await websocket.recv()
+            data = json.loads(message)
+
+            msg_type = data.get("type")
+
+            if msg_type == "location":
+                last_location = (data.get("lat"), data.get("lng"))
+                await location_queue.put(data)
+
+            elif msg_type == "locuri_vizitate":
+                try:
+                    with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
+                        json.dump(data, f, indent=2, ensure_ascii=False)
+                        print("[WebSocket] vizite.json actualizat")
+                except Exception as e:
+                    print(f"[Eroare salvare locuri_vizitate]: {e}")
+
+            elif msg_type == "searchedLocation":
+                await proceseaza_destinatie(data, websocket)
+
+            else:
+                print(f"[WebSocket] Mesaj necunoscut: {data}")
+
+        except websockets.exceptions.ConnectionClosed:
+            print("Conexiune WebSocket închisă de client.")
+            break
+        except Exception as e:
+            print(f"[Eroare WebSocket]: {e}")
+            continue
 
 
 #POI = PUNCTE DE INTERES DIN TRASEU     
@@ -322,26 +374,38 @@ async def handle_connection(websocket, path=None):
     try:
         print("Aștept comenzile utilizatorului")
         await autentificare(websocket)
+
+        asyncio.create_task(primeste_mesaje(websocket))
+
+        # Continuă fluxul principal fără să blochezi aplicația
         while last_location is None:
-            message = await websocket.recv()
-            try:
-                data = json.loads(message)
+            await asyncio.sleep(0.5)
 
-                if data.get("type") == "location":
-                    last_location = (data.get("lat"), data.get("lng"))
-                    await location_queue.put(data)
-                    print(f"Locatie initiala setat:a {last_location}")
+        # while True:
+        #     try:
+        #         message = await websocket.recv()
+        #         data = json.loads(message)
 
-                elif data.get("type") == "locuri_vizitate":
-                    try:
-                        with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
-                            print(f'Fisierul vizite.json a fost actualizat ')
-                            json.dump(data, f, indent=2, ensure_ascii=False)
-                    except Exception as e:
-                        print(f'[Eroare] Salvare vizite.json: {e}')
+        #         if data.get("type") == "location":
+        #             last_location = (data.get("lat"), data.get("lng"))
+        #             await location_queue.put(data)
+        #         elif data.get("type") == "locuri_vizitate":
+        #             try:
+        #                 with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
+        #                     print(f'[WebSocket] vizite.json actualizat')
+        #                     json.dump(data, f, indent=2, ensure_ascii=False)
+        #             except Exception as e:
+        #                 print(f'[Eroare salvare locuri_vizitate]: {e}')
+        #         else:
+        #             print(f"[WebSocket] Tip necunoscut: {data.get('type')}")
 
-            except:
-                continue
+        #     except websockets.exceptions.ConnectionClosed:
+        #         print("Conexiune WebSocket închisă de client.")
+        #         break
+        #     except Exception as e:
+        #         print(f"[Eroare WebSocket]: {e}")
+        #         continue
+
         speak_text("Spuneți adresa unde doriți să ajungeți.")
         destinatie = await recognize_speech()
         print(f"[Asistent] Destinație rostită: {destinatie}")
@@ -447,6 +511,8 @@ async def handle_connection(websocket, path=None):
                 f,
                 indent=2
             )
+        genereaza_treceri_din_traseu(coordonate_totale)
+
 
         await websocket.send(json.dumps({
             "type": "ruta",
@@ -470,24 +536,10 @@ async def handle_connection(websocket, path=None):
         }))
 
         print("Traseu trimis. Începem ghidarea vocală...")
-        asyncio.create_task(comenzi_deplasare(location_queue))
 
-        while True:
-            message = await websocket.recv()
-            try:
-                data = json.loads(message)
-                if data.get("type") == "location":
-                    last_location = (data.get("lat"), data.get("lng"))
-                    await location_queue.put(data)
-                elif data.get("type") == "locuri_vizitate":
-                    try:
-                        with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
-                            print(f'Fisierul vizite.json a fost actualizat')
-                            json.dump(data, f, indent =2, ensure_ascii = False)
-                    except Exception as e :
-                        print(f'Eroare la salvarea fisierului vizite.json: {e}')
-            except:
-                continue
+        asyncio.create_task(comenzi_deplasare(location_queue))
+        asyncio.create_task(monitorizare_treceri(lambda: last_location))
+
 
     except websockets.exceptions.ConnectionClosed as e:
         print(f"Conexiune închisă: {e}")
