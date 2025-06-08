@@ -2,11 +2,11 @@
   "type": "locuri_vizitate",
   "locuri": [
     {
-      "data": "2025-06-06",
-      "lat": 45.7304,
-      "lng": 21.2546,
+      "data": "2025-06-08",
+      "lat": 45.7318,
+      "lng": 21.2319,
       "nr_vizite": 1,
-      "nume_loc": "Intrare calea urseni",
+      "nume_loc": "calea martirilor",
       "nume_utilizator": "Cosmina"
     }
   ]

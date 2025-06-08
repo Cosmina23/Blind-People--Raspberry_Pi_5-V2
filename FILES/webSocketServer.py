@@ -63,28 +63,47 @@ def scor_familiaritate(coord, distanta, nr_vizite, distanta_maxima = 2000):
     return max(scor, 0)
 
 
-
-def gaseste_nod_familiar(source_coord, target_coord, vizite_json):
-    best_nod = None
-    best_scor = -1
-    dist_directa = geodesic(source_coord, target_coord).meters
+def gaseste_nod_familiar(source_coord, target_coord, vizite_json, prag_diferenta_metri=150):
+    candidati = []
 
     for punct in vizite_json:
         coord = (punct["lat"], punct["lng"])
         nr_vizite = punct["nr_vizite"]
+        nume_loc = punct.get("nume_loc", "Loc familiar necunoscut")
 
+        dist_la_destinatie = geodesic(coord, target_coord).meters
         dist_la_start = geodesic(source_coord, coord).meters
-        dist_la_final = geodesic(coord, target_coord).meters
-        total_dist = dist_la_start + dist_la_final
+        total_dist = dist_la_start + dist_la_destinatie
 
-        scor = scor_familiaritate(coord, total_dist, nr_vizite)
-        print(f"[DEBUG] Candidat: {coord} | Total dist: {total_dist:.1f}m | Scor: {scor:.2f}")
+        candidati.append({
+            "coord": coord,
+            "nr_vizite": nr_vizite,
+            "dist_final": dist_la_destinatie,
+            "dist_total": total_dist,
+            "nume_loc": nume_loc
+        })
 
-        if scor > best_scor:
-            best_scor = scor
-            best_nod = coord
+    if not candidati:
+        return None, None
 
-    return best_nod
+    print("[DEBUG] Noduri familiare candidate:")
+    for c in candidati:
+        print(f"- {c['nume_loc']}: coord={c['coord']}, vizite={c['nr_vizite']}, dist_dest={c['dist_final']:.1f} m")
+
+    # Sortează după distanță la destinație
+    candidati.sort(key=lambda x: x["dist_final"])
+
+    nod_apropiat = candidati[0]
+
+    for c in candidati[1:]:
+        diferenta = abs(c["dist_final"] - nod_apropiat["dist_final"])
+        if diferenta <= prag_diferenta_metri and c["nr_vizite"] > nod_apropiat["nr_vizite"]:
+            print(f"[DEBUG] Aleg nod cu mai multe vizite: {c['nume_loc']} în loc de {nod_apropiat['nume_loc']}")
+            nod_apropiat = c
+
+    print(f"[SELECTAT] Nod familiar: {nod_apropiat['nume_loc']} ({nod_apropiat['coord']}), {nod_apropiat['dist_final']:.1f}m de destinație, {nod_apropiat['nr_vizite']} vizite")
+    return nod_apropiat["coord"], nod_apropiat["nume_loc"]
+
 
 def elimina_coord_duplicate(lista):
     if not lista:
@@ -336,14 +355,14 @@ async def handle_connection(websocket, path=None):
                     print(f"[POI] Eroare la căutarea POI: {e}")
                     speak_text("A apărut o eroare la căutarea punctului de interes.")
 
-        nod_familiar = gaseste_nod_familiar(last_location, end, lista_vizite)
+        nod_familiar_coord, nod_familiar_nume = gaseste_nod_familiar(last_location, end, lista_vizite)
 
         if opriri:
             # dacă avem opriri, ne pregătim să decidem traseul corect
             traseu_logical = []
-            traseu_logical = decide_traseu(last_location, opriri[0], end, nod_familiar)
-        elif nod_familiar:
-            traseu_logical = [last_location, nod_familiar, end]
+            traseu_logical = decide_traseu(last_location, opriri[0], end, nod_familiar_coord)
+        elif nod_familiar_coord:
+            traseu_logical = [last_location, nod_familiar_coord, end]
         else:
             traseu_logical = [last_location, end]
 
@@ -371,6 +390,9 @@ async def handle_connection(websocket, path=None):
             indicatii_totale.extend(indicatii_partial)
             coordonate_totale.extend(coordonate_partial if i == 0 else coordonate_partial[1:])
             durata_totala += durata
+
+        if nod_familiar_coord:
+            speak_text(f"Traseul include locația familiară salvată cu numele {nod_familiar_nume}.")
 
         speak_text(f"Traseul complet durează aproximativ {durata_totala} minute.")
 
@@ -400,7 +422,12 @@ async def handle_connection(websocket, path=None):
             "locatie_end_lat": end[0],
             "locatie_end_lng": end[1],
             "destinatie_nume": destinatie,
-            "opriri": [{"latitude": lat, "longitude": lng} for lat, lng in opriri]
+            "opriri": [{"latitude": lat, "longitude": lng} for lat, lng in opriri],
+            "nod_familiar":{
+                "lat": nod_familiar_coord[0],
+                "lng": nod_familiar_coord[1],
+                "nume": nod_familiar_nume
+            } if nod_familiar_coord else None
         }))
 
         print("Traseu trimis. Începem ghidarea vocală...")
