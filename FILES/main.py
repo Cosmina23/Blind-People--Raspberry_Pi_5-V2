@@ -1,8 +1,14 @@
 import asyncio
 print("START MAIN")
-
+import os
 import sys
 import traceback
+
+try:
+    open("treceri_pe_traseu.json", "w").close()
+    print("[INIT] Fișierul treceri_pe_traseu.json a fost golit.")
+except Exception as e:
+    print(f"[EROARE] Nu pot șterge fișierul: {e}")
 
 try:
     from webSocketServer import start_websocket_server

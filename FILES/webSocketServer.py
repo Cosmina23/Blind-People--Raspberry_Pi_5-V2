@@ -49,30 +49,29 @@ async def primeste_mesaje(websocket):
             msg_type = data.get("type")
 
             if msg_type == "location":
+                print(f"[LOCATIE] Primit: {data}")
                 last_location = (data.get("lat"), data.get("lng"))
                 await location_queue.put(data)
 
             elif msg_type == "locuri_vizitate":
-                try:
-                    with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
-                        json.dump(data, f, indent=2, ensure_ascii=False)
-                        print("[WebSocket] vizite.json actualizat")
-                except Exception as e:
-                    print(f"[Eroare salvare locuri_vizitate]: {e}")
+                print("[VIZITE] Actualizare locuri vizitate")
+                with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2, ensure_ascii=False)
 
-            elif msg_type == "searchedLocation":
-                await proceseaza_destinatie(data, websocket)
+            # elif msg_type == "searchedLocation":
+            #     print("[SEARCH] Locație căutată primită")
+            #     await proceseaza_destinatie(data, websocket)
 
             else:
-                print(f"[WebSocket] Mesaj necunoscut: {data}")
+                print(f"[UNKNOWN TYPE] {data}")
 
+        except json.JSONDecodeError:
+            print("[EROARE] JSON invalid")
         except websockets.exceptions.ConnectionClosed:
-            print("Conexiune WebSocket închisă de client.")
+            print("[WS] Conexiune închisă")
             break
         except Exception as e:
-            print(f"[Eroare WebSocket]: {e}")
-            continue
-
+            print(f"[EROARE gravă în primeste_mesaje]: {e}")
 
 #POI = PUNCTE DE INTERES DIN TRASEU     
 async def cauta_poi(traseu_coord, categorie_poi):
@@ -540,6 +539,7 @@ async def handle_connection(websocket, path=None):
         asyncio.create_task(comenzi_deplasare(location_queue))
         asyncio.create_task(monitorizare_treceri(lambda: last_location))
 
+        await asyncio.Future()
 
     except websockets.exceptions.ConnectionClosed as e:
         print(f"Conexiune închisă: {e}")
