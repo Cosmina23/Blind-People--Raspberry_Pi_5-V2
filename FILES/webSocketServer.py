@@ -104,6 +104,41 @@ def gaseste_nod_familiar(source_coord, target_coord, vizite_json, prag_diferenta
     print(f"[SELECTAT] Nod familiar: {nod_apropiat['nume_loc']} ({nod_apropiat['coord']}), {nod_apropiat['dist_final']:.1f}m de destinație, {nod_apropiat['nr_vizite']} vizite")
     return nod_apropiat["coord"], nod_apropiat["nume_loc"]
 
+def gaseste_nod_familiar_modificat(start, end, vizite_json):
+    try:
+        _,_, durata_directa = obtine_ruta(start,end)
+        print(f'[NOD FAMILIAR] Durata direct: {durata_directa} min')
+    except Exception as e:
+        print(f'[NOD FAMILIAR] Eroare la ruta directa {e}')
+        return None
+    
+    best_node = None 
+    best_durata = float('inf')
+    best_vizite = 1
+
+    for punct in vizite_json:
+        coord = (punct["lat"], punct["lng"])
+        nr_vizite = punct["nr_vizite"]
+        try:
+            _,_,durata_nod = obtine_ruta(start, end, nod_familiar = coord)
+            print(f'[NOD FAMILIAR] Ruta pt {coord} dureaza {durata_nod} min')
+
+            if durata_nod <= durata_directa *1.3:
+                if durata_nod < best_durata or (abs(durata_nod - best_durata) < 3 and nr_vizite > best_vizite):
+                    best_nod = {
+                        "lat" : coord[0],
+                        "lng":coord[1],
+                        "nume": punct.get("nume_loc", "nod necunoscut"),
+                        "nr_vizite": nr_vizite
+                    }
+                    best_durata = durata_nod
+                    best_vizite = nr_vizite
+
+        except Exception as e:
+            print(f'[NOD FAMILIAR] Eroare la ruta cu nodul {coord}: {e}')
+            continue 
+
+    return best_nod
 
 def elimina_coord_duplicate(lista):
     if not lista:
@@ -355,7 +390,11 @@ async def handle_connection(websocket, path=None):
                     print(f"[POI] Eroare la căutarea POI: {e}")
                     speak_text("A apărut o eroare la căutarea punctului de interes.")
 
-        nod_familiar_coord, nod_familiar_nume = gaseste_nod_familiar(last_location, end, lista_vizite)
+        
+
+        nod_familiar = gaseste_nod_familiar_modificat(last_location, end, lista_vizite)
+        nod_familiar_coord = (nod_familiar["lat"], nod_familiar["lng"]) if nod_familiar else None
+        nod_familiar_nume = nod_familiar["nume"] if nod_familiar else None
 
         if opriri:
             # dacă avem opriri, ne pregătim să decidem traseul corect

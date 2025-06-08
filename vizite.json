@@ -5,8 +5,16 @@
       "data": "2025-06-08",
       "lat": 45.7318,
       "lng": 21.2319,
-      "nr_vizite": 1,
+      "nr_vizite": 2,
       "nume_loc": "calea martirilor",
+      "nume_utilizator": "Cosmina"
+    },
+    {
+      "data": "2025-06-08",
+      "lat": 45.7305,
+      "lng": 21.2319,
+      "nr_vizite": 1,
+      "nume_loc": "biserica martirilor",
       "nume_utilizator": "Cosmina"
     }
   ]
