@@ -103,7 +103,7 @@ def bidirectional_dijkstra_modificat(G, source, target, vizite_json, nod_interme
         raise ValueError("Nodurile nu au coordonate")
 
     if nod_intermediar:
-        # convertim coordonata familiară într-un nod din graf
+        #conversie: coordonata familiara intr-un nod din graf
         if nod_intermediar in inv_coord_map:
             intermediar = inv_coord_map[nod_intermediar]
             print(f"[DEBUG] Nod familiar găsit exact în graf: {intermediar}")
@@ -124,5 +124,4 @@ def bidirectional_dijkstra_modificat(G, source, target, vizite_json, nod_interme
             dist2, path2 = bidirectional_dijkstra(G, intermediar, target)
             return dist1 + dist2, path1[:-1] + path2
 
-    # dacă nu avem intermediar, continuăm simplu
     return bidirectional_dijkstra(G, source, target)
