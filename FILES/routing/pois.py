@@ -1,5 +1,6 @@
 from pyrosm import OSM
 from geopy.distance import geodesic
+import osmnx as ox
 
 def scor_calitate(row):
     scor = 0
@@ -8,6 +9,39 @@ def scor_calitate(row):
     if isinstance(row.get("tags"), dict) and "brand" in row["tags"]:
         scor += 1
     return scor
+
+
+#POI = PUNCTE DE INTERES DIN TRASEU                 
+async def cauta_poi(traseu_coord, categorie_poi):
+    try:
+        lat_min = min(p[0] for p in traseu_coord)
+        lng_min = min(p[1] for p in traseu_coord)
+        lat_max = max(p[0] for p in traseu_coord)
+        lng_max = max(p[1] for p in traseu_coord)
+
+        g = ox.graph_from_bbox(lat_max, lat_min, lng_max, lng_min, network_type='walk')
+        pois = ox.features_from_bbox(lat_max, lat_min, lng_max, lng_min, tags={"amenity": categorie_poi})
+
+        if pois.empty:
+            return None 
+        
+        #gasire cel mai apropiat poi de traseu 
+        ruta_points = [(lat,lng) for lat,lng in traseu_coord]
+        min_dist = float("inf")
+        clossest = None 
+
+        for _, row in pois.iterrows():
+            poi_point = (row.geometry.y, row.geometry.x)
+            for coord in ruta_points:
+                dist = ox.distance.great_circle_vec(coord[0], coord[1], poi_point[0], poi_point[1])
+                if dist < min_dist:
+                    min_dist = dist
+                    clossest = poi_point
+        return clossest
+    
+    except Exception as e:
+        print(f'[POI] Eroare la cautare poi: {e}')
+        return None 
 
 
 def dist_minim_fata_de_traseu(start, end, coordonate_traseu, row):

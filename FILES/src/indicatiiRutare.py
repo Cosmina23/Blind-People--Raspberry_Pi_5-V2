@@ -1,14 +1,45 @@
 import asyncio
 import json
-from textToSpeech import speak_text
+from voice_interface.textToSpeech import speak_text
 from geopy.distance import geodesic as GD
 from geopy.geocoders import Nominatim
 from geopy.geocoders import Nominatim
 # from detectie_semafor import analizeaza_semafor_din_imagine
 # import subprocess, time
 
+import math 
+
 PROXIMITY_METERS = 15
 geolocator = Nominatim(user_agent="asistent_navigatie")
+
+
+
+def calculeaza_unghi(p1, p2, p3):
+    v1 = (p2[0] - p1[0], p2[1] - p1[1])
+    v2 = (p3[0] - p2[0], p3[1] - p2[1])
+    prod = v1[0]*v2[0] + v1[1]*v2[1]
+    norm_u = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
+    norm_v = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
+    if norm_u*norm_v == 0:
+        return 0
+
+    cos_angle = prod / (norm_u * norm_v)
+    cos_angle = max(-1, min(1, cos_angle))
+    angle = math.degrees(math.acos(cos_angle))
+
+    determinant = v1[0]*v2[1] - v1[1]*v2[0]
+    return angle if determinant > 0 else -angle
+
+
+
+def genereaza_indicatie(angle):
+    prag_dreapta = 20
+    prag_stanga = -20
+    if angle > prag_dreapta:
+        return "La dreapta"
+    elif angle < prag_stanga:
+        return "La stanga"
+    return "Inainte"
 
 async def geocode_adresa(adresa):
     try:
@@ -63,9 +94,6 @@ async def comenzi_deplasare(location_queue):
     print("[Asistent] Modulul de ghidare vocală a început.")
     indicatii, coordonate = get_indicatii()
 
-    # with open("treceri_pe_traseu.json","r") as f:
-    #     treceri_pe_traseu = json.load(f)
-    
 
     _, opriri = get_opriri()
 
@@ -89,7 +117,6 @@ async def comenzi_deplasare(location_queue):
         loc_familiar = sorted(locatii_familiare, key=lambda x: x["index"])[0]  # cel mai apropiat în ordine
         msg_intro = f"Traseul include locația cunoscută salvată cu numele {loc_familiar['nume']}."
 
-        # Verificăm dacă există opriri înainte de acea locație
         opriri_inainte = []
         for oprire in opriri:
             for i in range(0, loc_familiar["index"]):
@@ -111,26 +138,6 @@ async def comenzi_deplasare(location_queue):
             lng_user = data.get("lng")
             lat_end = coordonate[pas_curent]["latitude"]
             lng_end = coordonate[pas_curent]["longitude"]
-
-            # for zebra in treceri_pe_traseu:
-            #     z_lat = zebra["latitude"]
-            #     z_lng = zebra["longitude"]
-            #     d = calculate_distance(lat_user, lng_user, z_lat, z_lng) * 1000
-
-            #     if d <= PROXIMITY_METERS and (z_lat, z_lng) not in opriri_efectuate:
-            #         print(f"[Semafor] Aproape de trecere la {z_lat}, {z_lng} (d={d:.1f} m)")
-
-            #         img_path = f"zebra_{int(time.time())}.jpg"
-            #         subprocess.run([
-            #             "libcamera-still", "-o", img_path,
-            #             "--width", "640", "--height", "480", "--nopreview"
-            #         ])
-
-            #         rezultat = analizeaza_semafor_din_imagine(img_path)
-            #         print(f"[Semafor] Rezultat: {rezultat}")
-            #         speak_text(f"Trecere de pietoni cu semafor: {rezultat}" if rezultat != "fara semafor" else "Trecere de pietoni fara semafor")
-            #         opriri_efectuate.add((z_lat, z_lng))
-
 
             dist = calculate_distance(lat_user, lng_user, lat_end, lng_end) * 1000  # in metri
             print(f"[Asistent] Distanță până la pasul {pas_curent + 1}: {dist:.1f} m")

@@ -1,19 +1,19 @@
 import websockets
 import json
 import asyncio
-from geopy.distance import geodesic
-from src.takeCredentials import autentificare, reset_credentials
-from src.navigator_maps import obtine_ruta, obtine_ruta_standard
-from src.indicatioRoutes import comenzi_deplasare
-from textToSpeech import speak_text
-from voiceToText import recognize_speech
-from src.indicatioRoutes import geocode_adresa
-import osmnx as ox
-from test_osmnx import gaseste_puncte_pe_traseu
+from src.takeCredentials import autentificare
+from routing.navigator_maps import obtine_ruta, obtine_ruta_standard
+from src.indicatiiRutare import comenzi_deplasare
+from voice_interface.textToSpeech import speak_text
+from voice_interface.voiceToText import recognize_speech
+from src.indicatiiRutare import geocode_adresa
+from routing.pois import gaseste_puncte_pe_traseu
 from src.monitorizare_trecere import monitorizare_treceri
+from routing.detectare_treceri_traseu import genereaza_treceri_din_traseu
+from routing.noduri_familiare import gaseste_nod_familiar_modificat
+from utils.traseu_utils import elimina_coord_duplicate, decide_traseu
+from src.manager_file import incarca_vizite, salveaza_vizite, salveaza_ruta
 # import openrouteservice
-from src.detectare_treceri_traseu import gaseste_treceri_fix_pe_traseu
-from pyrosm import OSM
 
 
 current_app = None
@@ -22,22 +22,10 @@ location_queue = asyncio.Queue()
 
 ORS_API_KEY = "5b3ce3597851110001cf62483ed29d9e4b9b47a58f40e20891efb908"
 # client = openrouteservice.Client(key=ORS_API_KEY)
-
-
-def genereaza_treceri_din_traseu(coordonate_ruta):
-    try:
-        print("Generăm treceri de pietoni de pe traseu...")
-        pbf_path = "/home/cosmina/Documente/Proiect1/timisoara.osm.pbf"
-        osm = OSM(pbf_path)
-        crossings = osm.get_pois(custom_filter={"highway": ["crossing"]})
-
-        treceri = gaseste_treceri_fix_pe_traseu(coordonate_ruta, crossings)
-
-        with open("treceri_pe_traseu.json", "w") as f:
-            json.dump(treceri, f, indent=2)
-        print(f"Treceri salvate: {len(treceri)}")
-    except Exception as e:
-        print(f"[Eroare treceri pietoni]: {e}")
+FISIER_VIZITE = "/home/cosmina/Documente/Proiect1/vizite.json"
+lista_vizite = incarca_vizite(FISIER_VIZITE)
+INDICATII_PATH = "indicatii_ruta.txt"
+COORD_PATH = "coordonate_ruta.json"
 
 async def primeste_mesaje(websocket):
     global last_location
@@ -55,13 +43,7 @@ async def primeste_mesaje(websocket):
 
             elif msg_type == "locuri_vizitate":
                 print("[VIZITE] Actualizare locuri vizitate")
-                with open("/home/cosmina/Documente/Proiect1/vizite.json", "w", encoding="utf-8") as f:
-                    json.dump(data, f, indent=2, ensure_ascii=False)
-
-            # elif msg_type == "searchedLocation":
-            #     print("[SEARCH] Locație căutată primită")
-            #     await proceseaza_destinatie(data, websocket)
-
+                salveaza_vizite(data, FISIER_VIZITE)
             else:
                 print(f"[UNKNOWN TYPE] {data}")
 
@@ -73,176 +55,6 @@ async def primeste_mesaje(websocket):
         except Exception as e:
             print(f"[EROARE gravă în primeste_mesaje]: {e}")
 
-#POI = PUNCTE DE INTERES DIN TRASEU     
-async def cauta_poi(traseu_coord, categorie_poi):
-    try:
-        lat_min = min(p[0] for p in traseu_coord)
-        lng_min = min(p[1] for p in traseu_coord)
-        lat_max = max(p[0] for p in traseu_coord)
-        lng_max = max(p[1] for p in traseu_coord)
-
-        g = ox.graph_from_bbox(lat_max, lat_min, lng_max, lng_min, network_type='walk')
-        pois = ox.features_from_bbox(lat_max, lat_min, lng_max, lng_min, tags={"amenity": categorie_poi})
-
-        if pois.empty:
-            return None 
-        
-        #gasire cel mai apropiat poi de traseu 
-        ruta_points = [(lat,lng) for lat,lng in traseu_coord]
-        min_dist = float("inf")
-        clossest = None 
-
-        for _, row in pois.iterrows():
-            poi_point = (row.geometry.y, row.geometry.x)
-            for coord in ruta_points:
-                dist = ox.distance.great_circle_vec(coord[0], coord[1], poi_point[0], poi_point[1])
-                if dist < min_dist:
-                    min_dist = dist
-                    clossest = poi_point
-        return clossest
-    
-    except Exception as e:
-        print(f'[POI] Eroare la cautare poi: {e}')
-        return None 
-
-
-
-def scor_familiaritate(coord, distanta, nr_vizite, distanta_maxima = 2000):
-    if distanta > distanta_maxima:
-        return 0
-    scor = nr_vizite * (1 - (distanta / distanta_maxima))
-    return max(scor, 0)
-
-
-def gaseste_nod_familiar(source_coord, target_coord, vizite_json, prag_diferenta_metri=150):
-    candidati = []
-
-    for punct in vizite_json:
-        coord = (punct["lat"], punct["lng"])
-        nr_vizite = punct["nr_vizite"]
-        nume_loc = punct.get("nume_loc", "Loc familiar necunoscut")
-
-        dist_la_destinatie = geodesic(coord, target_coord).meters
-        dist_la_start = geodesic(source_coord, coord).meters
-        total_dist = dist_la_start + dist_la_destinatie
-
-        candidati.append({
-            "coord": coord,
-            "nr_vizite": nr_vizite,
-            "dist_final": dist_la_destinatie,
-            "dist_total": total_dist,
-            "nume_loc": nume_loc
-        })
-
-    if not candidati:
-        return None, None
-
-    print("[DEBUG] Noduri familiare candidate:")
-    for c in candidati:
-        print(f"- {c['nume_loc']}: coord={c['coord']}, vizite={c['nr_vizite']}, dist_dest={c['dist_final']:.1f} m")
-
-    # Sortează după distanță la destinație
-    candidati.sort(key=lambda x: x["dist_final"])
-
-    nod_apropiat = candidati[0]
-
-    for c in candidati[1:]:
-        diferenta = abs(c["dist_final"] - nod_apropiat["dist_final"])
-        if diferenta <= prag_diferenta_metri and c["nr_vizite"] > nod_apropiat["nr_vizite"]:
-            print(f"[DEBUG] Aleg nod cu mai multe vizite: {c['nume_loc']} în loc de {nod_apropiat['nume_loc']}")
-            nod_apropiat = c
-
-    print(f"[SELECTAT] Nod familiar: {nod_apropiat['nume_loc']} ({nod_apropiat['coord']}), {nod_apropiat['dist_final']:.1f}m de destinație, {nod_apropiat['nr_vizite']} vizite")
-    return nod_apropiat["coord"], nod_apropiat["nume_loc"]
-
-def gaseste_nod_familiar_modificat(start, end, vizite_json):
-    try:
-        _,_, durata_directa = obtine_ruta(start,end)
-        print(f'[NOD FAMILIAR] Durata direct: {durata_directa} min')
-    except Exception as e:
-        print(f'[NOD FAMILIAR] Eroare la ruta directa {e}')
-        return None
-    
-    best_node = None 
-    best_durata = float('inf')
-    best_vizite = 1
-
-    for punct in vizite_json:
-        coord = (punct["lat"], punct["lng"])
-        nr_vizite = punct["nr_vizite"]
-        try:
-            _,_,durata_nod = obtine_ruta(start, end, nod_familiar = coord)
-            print(f'[NOD FAMILIAR] Ruta pt {coord} dureaza {durata_nod} min')
-
-            if durata_nod <= durata_directa *1.3:
-                if durata_nod < best_durata or (abs(durata_nod - best_durata) < 3 and nr_vizite > best_vizite):
-                    best_nod = {
-                        "lat" : coord[0],
-                        "lng":coord[1],
-                        "nume": punct.get("nume_loc", "nod necunoscut"),
-                        "nr_vizite": nr_vizite
-                    }
-                    best_durata = durata_nod
-                    best_vizite = nr_vizite
-
-        except Exception as e:
-            print(f'[NOD FAMILIAR] Eroare la ruta cu nodul {coord}: {e}')
-            continue 
-
-    return best_nod
-
-def elimina_coord_duplicate(lista):
-    if not lista:
-        return []
-    rezultat = [lista[0]]
-    for coord in lista[1:]:
-        if coord != rezultat[-1]:
-            rezultat.append(coord)
-    return rezultat
-
-def decide_traseu(start, oprire, destinatie, nod_familiar=None):
-    traseu = [start]
-
-    if nod_familiar and oprire:
-        d_start_oprire = geodesic(start, oprire).meters
-        d_start_nod = geodesic(start, nod_familiar).meters
-
-        if d_start_oprire < d_start_nod:
-            traseu += [oprire, nod_familiar]
-        else:
-            traseu += [nod_familiar, oprire]
-    elif nod_familiar:
-        traseu.append(nod_familiar)
-    elif oprire:
-        traseu.append(oprire)
-
-    traseu.append(destinatie)
-    return traseu
-
-
-
-def insereaza_oprire_in_traseu(traseu, oprire_coord):
-    dmin = float('inf')
-    index_apropiat = -1
-    for idx, punct in enumerate(traseu):
-        dist = geodesic(punct, oprire_coord).meters
-        if dist < dmin:
-            dmin = dist
-            index_apropiat = idx
-    punct_apropiat = traseu[index_apropiat]
-    traseu_modificat = (
-        traseu[:index_apropiat+1] +
-        [oprire_coord, punct_apropiat] +
-        traseu[index_apropiat+1:]
-    )
-    return traseu_modificat
-
-
-fisier_vizite = "/home/cosmina/Documente/Proiect1/vizite.json"
-with open(fisier_vizite, "r", encoding="utf-8") as f:
-    vizite = json.load(f)
-
-lista_vizite = vizite.get("locuri", [])
 
 async def handle_connection(websocket, path=None):
     global current_app
@@ -261,7 +73,6 @@ async def handle_connection(websocket, path=None):
 
         asyncio.create_task(primeste_mesaje(websocket))
 
-        # Continuă fluxul principal fără să blochezi aplicația
         while last_location is None:
             await asyncio.sleep(0.5)
 
@@ -320,7 +131,6 @@ async def handle_connection(websocket, path=None):
         nod_familiar_nume = nod_familiar["nume"] if nod_familiar else None
 
         if opriri:
-            # dacă avem opriri, ne pregătim să decidem traseul corect
             traseu_logical = []
             traseu_logical = decide_traseu(last_location, opriri[0], end, nod_familiar_coord)
         elif nod_familiar_coord:
@@ -333,7 +143,7 @@ async def handle_connection(websocket, path=None):
         coordonate_totale = []
         durata_totala = 0
 
-        # Refacem bucla pentru fiecare segment din traseu
+
         for i in range(len(traseu_logical) - 1):
             p_start = traseu_logical[i]
             p_end = traseu_logical[i + 1]
@@ -342,7 +152,7 @@ async def handle_connection(websocket, path=None):
     
             try:
                 coordonate_partial, durata = obtine_ruta_standard(p_start, p_end)
-                indicatii_partial = []  # sau generează local dacă vrei
+                indicatii_partial = [] 
             except Exception as e:
                 print(f"[EROARE] Segmentul {p_start} -> {p_end}: {e}")
                 continue
@@ -359,16 +169,7 @@ async def handle_connection(websocket, path=None):
 
         coordonate_totale = elimina_coord_duplicate(coordonate_totale)
 
-        with open("indicatii_ruta.txt", "w") as f:
-            for indicatie in indicatii_totale:
-                f.write(indicatie + "\n")
-
-        with open("coordonate_ruta.json", "w") as f:
-            json.dump(
-                [{"latitude": lat, "longitude": lng} for lat, lng in coordonate_totale],
-                f,
-                indent=2
-            )
+        salveaza_ruta(coordonate_totale, INDICATII_PATH, COORD_PATH, indicatii_totale)
         genereaza_treceri_din_traseu(coordonate_totale)
 
 

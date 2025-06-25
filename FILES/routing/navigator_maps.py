@@ -1,26 +1,20 @@
 import osmnx as ox 
 from geopy.distance import geodesic
-from gtts import gTTS
 import os 
-import math 
-import folium
 import openrouteservice
 import json
 from shapely.geometry import Point
 from osmnx.distance import nearest_edges
-
+from src.indicatiiRutare import calculeaza_unghi, genereaza_indicatie
 from networkx.algorithms.shortest_paths.weighted import bidirectional_dijkstra as nx_bidirectional_dijkstra
+from src.manager_file import incarca_vizite
+from routing.my_dijkstra import bidirectional_dijkstra_modificat
 
 
-print("CEVA")
-from src.my_dijkstra import bidirectional_dijkstra_modificat
-print("CEVAs")
+VIZITE_PATH = "/home/cosmina/Documente/Proiect1/vizite.json"
+GRAFML_FILE = "timisoara.graphml"
 
-fisier_vizite = "/home/cosmina/Documente/Proiect1/vizite.json"
-with open(fisier_vizite, "r", encoding="utf-8") as f:
-    vizite = json.load(f)
-
-lista_vizite = vizite.get("locuri", [])
+lista_vizite = incarca_vizite(VIZITE_PATH)
 
 
 def nearest_point_on_edge(g, point):
@@ -38,58 +32,17 @@ def nearest_point_on_edge(g, point):
         return u if geodesic((lat_u, lon_u), point).meters < geodesic((lat_v, lon_v), point).meters else v
     return u
 
-
-def calculeaza_unghi(p1, p2, p3):
-    v1 = (p2[0] - p1[0], p2[1] - p1[1])
-    v2 = (p3[0] - p2[0], p3[1] - p2[1])
-    prod = v1[0]*v2[0] + v1[1]*v2[1]
-    norm_u = math.sqrt(v1[0] ** 2 + v1[1] ** 2)
-    norm_v = math.sqrt(v2[0] ** 2 + v2[1] ** 2)
-    if norm_u*norm_v == 0:
-        return 0
-
-    cos_angle = prod / (norm_u * norm_v)
-    cos_angle = max(-1, min(1, cos_angle))
-    angle = math.degrees(math.acos(cos_angle))
-
-    determinant = v1[0]*v2[1] - v1[1]*v2[0]
-    return angle if determinant > 0 else -angle
-
-
 def nearest_node(graf, coord):
     return ox.distance.nearest_nodes(graf, X=coord[1], Y=coord[0])
-
-
-def genereaza_indicatie(angle):
-    prag_dreapta = 20
-    prag_stanga = -20
-    if angle > prag_dreapta:
-        return "La dreapta"
-    elif angle < prag_stanga:
-        return "La stanga"
-    return "Inainte"
-
-
-def salveaza_harta(graf, ruta, extra_points=None):
-    noduri = [(graf.nodes[n]['y'], graf.nodes[n]['x']) for n in ruta]
-    m = folium.Map(location=noduri[0], zoom_start=15)
-    folium.PolyLine(noduri, color='blue', weight=5).add_to(m)
-    folium.Marker(noduri[0], tooltip='Start').add_to(m)
-    folium.Marker(noduri[-1], tooltip='Finish').add_to(m)
-    if extra_points:
-        for idx, pt in enumerate(extra_points):
-            folium.Marker(pt, tooltip=f'Oprire {idx+1}', icon=folium.Icon(color='green')).add_to(m)
-    m.save('maps.html')
-
 
 # navigator_maps.py - DOAR modificari esentiale marcate cu # MODIFICARE
 
 def obtine_ruta_segment(start, end):  # MODIFICARE: corectam implementarea
-    if not os.path.exists("timisoara.graphml"):
+    if not os.path.exists(GRAFML_FILE):
         timisoara_g = ox.graph_from_place("Timișoara, Romania", network_type="walk")
-        ox.save_graphml(timisoara_g, "timisoara.graphml")
+        ox.save_graphml(timisoara_g, GRAFML_FILE)
     else:
-        timisoara_g = ox.load_graphml("timisoara.graphml")
+        timisoara_g = ox.load_graphml(GRAFML_FILE)
 
     for node in timisoara_g.nodes:
         nod = timisoara_g.nodes[node]
@@ -165,21 +118,15 @@ def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar=None,  noduri_i
 
     return indicatii_totale, coordonate_totale, durata_totala
 
-
-from networkx.algorithms.shortest_paths.weighted import bidirectional_dijkstra as nx_bidirectional_dijkstra
-from geopy.distance import geodesic
-import osmnx as ox
-import os
-
 def nearest_node(graf, coord):
     return ox.distance.nearest_nodes(graf, X=coord[1], Y=coord[0])
 
 def obtine_ruta_standard(start, end):
-    if not os.path.exists("timisoara.graphml"):
+    if not os.path.exists(GRAFML_FILE):
         timisoara_g = ox.graph_from_place("Timișoara, Romania", network_type="walk")
-        ox.save_graphml(timisoara_g, "timisoara.graphml")
+        ox.save_graphml(timisoara_g, GRAFML_FILE)
     else:
-        timisoara_g = ox.load_graphml("timisoara.graphml")
+        timisoara_g = ox.load_graphml(GRAFML_FILE)
     for node in timisoara_g.nodes:
         nod = timisoara_g.nodes[node]
         nod['coord'] = (nod['y'], nod['x'])

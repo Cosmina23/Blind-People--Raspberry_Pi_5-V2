@@ -1,5 +1,5 @@
-from textToSpeech import speak_text
-from voiceToText import recognize_speech
+from voice_interface.textToSpeech import speak_text
+from voice_interface.voiceToText import recognize_speech
 from sendMessage import send_message, receive_message_from_app
 
 async def get_input(text):

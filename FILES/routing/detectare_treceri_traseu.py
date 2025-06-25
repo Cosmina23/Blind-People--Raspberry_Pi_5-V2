@@ -25,3 +25,19 @@ with open("../treceri_pe_traseu.json", "w") as f:
     json.dump(treceri_pe_traseu, f, indent=2)
 
 print(f"{len(treceri_pe_traseu)} treceri de pietoni detectate pe traseu.")
+
+
+def genereaza_treceri_din_traseu(coordonate_ruta):
+    try:
+        print("Generăm treceri de pietoni de pe traseu...")
+        pbf_path = "/home/cosmina/Documente/Proiect1/timisoara.osm.pbf"
+        osm = OSM(pbf_path)
+        crossings = osm.get_pois(custom_filter={"highway": ["crossing"]})
+
+        treceri = gaseste_treceri_fix_pe_traseu(coordonate_ruta, crossings)
+
+        with open("treceri_pe_traseu.json", "w") as f:
+            json.dump(treceri, f, indent=2)
+        print(f"Treceri salvate: {len(treceri)}")
+    except Exception as e:
+        print(f"[Eroare treceri pietoni]: {e}")

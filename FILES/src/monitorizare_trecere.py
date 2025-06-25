@@ -5,6 +5,8 @@ import subprocess
 from geopy.distance import geodesic
 from src.detectie_semafor import analizeaza_semafor_din_imagine
 import os
+from voice_interface.textToSpeech import speak_text
+
 
 PROXIMITATE_METRI = 8
 
@@ -40,7 +42,6 @@ async def monitorizare_treceri(get_user_location_func):
                 print(f"[Monitorizare] Rezultat semafor: {rezultat}")
                 treceri_detectate.add((lat, lon))
 
-                from textToSpeech import speak_text
                 if rezultat != "fara semafor":
                     speak_text(f"Semafor detectat. Culoare: {rezultat}")
                 else:
