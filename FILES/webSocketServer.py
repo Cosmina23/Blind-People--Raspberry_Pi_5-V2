@@ -2,7 +2,7 @@ import websockets
 import json
 import asyncio
 from src.takeCredentials import autentificare
-from routing.navigator_maps import obtine_ruta, obtine_ruta_standard
+from routing.rutare_principal import obtine_ruta, obtine_ruta_standard
 from src.indicatiiRutare import comenzi_deplasare
 from voice_interface.textToSpeech import speak_text
 from voice_interface.voiceToText import recognize_speech

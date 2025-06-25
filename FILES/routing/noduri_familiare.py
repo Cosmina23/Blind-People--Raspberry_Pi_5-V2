@@ -1,4 +1,4 @@
-from routing.navigator_maps import obtine_ruta, obtine_ruta_standard
+from routing.rutare_principal import obtine_ruta
 from geopy.distance import geodesic
 
 
