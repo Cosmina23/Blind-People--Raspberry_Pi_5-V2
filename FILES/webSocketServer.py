@@ -3,7 +3,7 @@ import json
 import asyncio
 from geopy.distance import geodesic
 from src.takeCredentials import autentificare, reset_credentials
-from src.navigator_maps import obtine_ruta
+from src.navigator_maps import obtine_ruta, obtine_ruta_standard
 from src.indicatioRoutes import comenzi_deplasare
 from textToSpeech import speak_text
 from voiceToText import recognize_speech
@@ -473,25 +473,24 @@ async def handle_connection(websocket, path=None):
         coordonate_totale = []
         durata_totala = 0
 
+        # Refacem bucla pentru fiecare segment din traseu
         for i in range(len(traseu_logical) - 1):
             p_start = traseu_logical[i]
             p_end = traseu_logical[i + 1]
-    
-            # nod_familiar se folosește doar o singură dată (între start și oprire, sau start și end dacă nu avem oprire)
-            # fol_nod_fstart == last_location and (not opriri or p_end == opriri[0])):
-            #         foamiliar = None
-            # if nod_familiar:
-            #     if (p_l_nod_familiar = nod_familiar  # îl folosim doar o dată și doar pe prima secțiune relevantă
 
-            indicatii_partial, coordonate_partial, durata = obtine_ruta(
-                p_start, p_end,
-                fol_edge_for_poi=(p_end in opriri),
-                nod_familiar=None
-            )
+            print(f"[DEBUG] Calculez segment: {p_start} -> {p_end}")
+    
+            try:
+                coordonate_partial, durata = obtine_ruta_standard(p_start, p_end)
+                indicatii_partial = []  # sau generează local dacă vrei
+            except Exception as e:
+                print(f"[EROARE] Segmentul {p_start} -> {p_end}: {e}")
+                continue
 
             indicatii_totale.extend(indicatii_partial)
             coordonate_totale.extend(coordonate_partial if i == 0 else coordonate_partial[1:])
             durata_totala += durata
+
 
         if nod_familiar_coord:
             speak_text(f"Traseul include locația familiară salvată cu numele {nod_familiar_nume}.")

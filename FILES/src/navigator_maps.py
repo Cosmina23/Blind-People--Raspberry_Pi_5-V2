@@ -9,6 +9,9 @@ import json
 from shapely.geometry import Point
 from osmnx.distance import nearest_edges
 
+from networkx.algorithms.shortest_paths.weighted import bidirectional_dijkstra as nx_bidirectional_dijkstra
+
+
 print("CEVA")
 from src.my_dijkstra import bidirectional_dijkstra_modificat
 print("CEVAs")
@@ -79,24 +82,27 @@ def salveaza_harta(graf, ruta, extra_points=None):
     m.save('maps.html')
 
 
-def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar = None):
+# navigator_maps.py - DOAR modificari esentiale marcate cu # MODIFICARE
+
+def obtine_ruta_segment(start, end):  # MODIFICARE: corectam implementarea
     if not os.path.exists("timisoara.graphml"):
         timisoara_g = ox.graph_from_place("Timișoara, Romania", network_type="walk")
         ox.save_graphml(timisoara_g, "timisoara.graphml")
     else:
         timisoara_g = ox.load_graphml("timisoara.graphml")
-        for node,data in timisoara_g.nodes(data = True):
-            data['coord'] = (data['y'], data['x'])
+
+    for node in timisoara_g.nodes:
+        nod = timisoara_g.nodes[node]
+        nod['coord'] = (nod['y'], nod['x'])
 
     start_node = nearest_node(timisoara_g, start)
-    if fol_edge_for_poi:
-        end_node = nearest_point_on_edge(timisoara_g, end)
-    else:
-        end_node = nearest_node(timisoara_g, end)
+    end_node = nearest_node(timisoara_g, end)
 
-    length, ruta =  bidirectional_dijkstra_modificat(timisoara_g, start_node, end_node, lista_vizite, nod_intermediar=nod_familiar)
+    length, ruta = bidirectional_dijkstra_modificat(
+        timisoara_g, start_node, end_node, lista_vizite, nod_intermediar=None
+    )
 
-    indicatii = []
+    indicatii_complet = []
     for i in range(len(ruta) - 2):
         u, v, w = ruta[i], ruta[i + 1], ruta[i + 2]
         lat1, lon1 = timisoara_g.nodes[u]['y'], timisoara_g.nodes[u]['x']
@@ -106,12 +112,21 @@ def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar = None):
         angle = calculeaza_unghi((lat1, lon1), (lat2, lon2), (lat3, lon3))
         indicatie_directie = genereaza_indicatie(angle)
 
-        anticipare = f"În câțiva pași, {indicatie_directie.lower()}."
+        anticipare = f"In cativa pasi, {indicatie_directie.lower()}."
         final = f"Acum, {indicatie_directie.lower()}."
 
-        indicatii.append(anticipare)
-        indicatii.append(final)
-
+        indicatii_complet.append({
+            "lat": lat2,
+            "lng": lon2,
+            "text": {"lat": lat3, "lng": lon3, "text": anticipare},
+            "anuntata": False
+        })
+        indicatii_complet.append({
+            "lat": lat3,
+            "lng": lon3,
+            "text": {"lat": lat3, "lng": lon3, "text": final},
+            "anuntata": False
+        })
 
     total_distance = sum(
         geodesic(
@@ -120,16 +135,74 @@ def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar = None):
         ).meters for i in range(len(ruta) - 1)
     )
     duration_min = int(total_distance / (5000 / 60))
-
     coordonate_ruta = [(timisoara_g.nodes[n]['y'], timisoara_g.nodes[n]['x']) for n in ruta]
 
-    extra_points = []
-    if fol_edge_for_poi:
-        coordonate_ruta.append(end)
-        extra_points.append(end)
+    return indicatii_complet, coordonate_ruta, duration_min
 
-    salveaza_harta(timisoara_g, ruta, extra_points=extra_points)
-    return indicatii, coordonate_ruta, duration_min
+
+
+def obtine_ruta(start, end, fol_edge_for_poi=False, nod_familiar=None,  noduri_intermediare=None):
+    traseu_logical = [start]
+    if noduri_intermediare:
+        traseu_logical += noduri_intermediare
+    if nod_familiar:
+        traseu_logical.append(nod_familiar)
+    traseu_logical.append(end)
+
+    coordonate_totale = []
+    indicatii_totale = []
+    durata_totala = 0
+
+    for i in range(len(traseu_logical) - 1):
+        p_start = traseu_logical[i]
+        p_end = traseu_logical[i + 1]
+        indicatii_partial, coordonate_partial, durata = obtine_ruta_segment(p_start, p_end)
+        indicatii_totale.extend(indicatii_partial)
+        coordonate_totale.extend(coordonate_partial if i == 0 else coordonate_partial[1:])
+        durata_totala += durata
+
+    # coordonate_totale = elimina_coord_duplicate(coordonate_totale)
+
+    return indicatii_totale, coordonate_totale, durata_totala
+
+
+from networkx.algorithms.shortest_paths.weighted import bidirectional_dijkstra as nx_bidirectional_dijkstra
+from geopy.distance import geodesic
+import osmnx as ox
+import os
+
+def nearest_node(graf, coord):
+    return ox.distance.nearest_nodes(graf, X=coord[1], Y=coord[0])
+
+def obtine_ruta_standard(start, end):
+    if not os.path.exists("timisoara.graphml"):
+        timisoara_g = ox.graph_from_place("Timișoara, Romania", network_type="walk")
+        ox.save_graphml(timisoara_g, "timisoara.graphml")
+    else:
+        timisoara_g = ox.load_graphml("timisoara.graphml")
+    for node in timisoara_g.nodes:
+        nod = timisoara_g.nodes[node]
+        nod['coord'] = (nod['y'], nod['x'])
+
+    start_node = nearest_node(timisoara_g, start)
+    end_node = nearest_node(timisoara_g, end)
+
+    # Rulăm algoritmul original
+    length, ruta = nx_bidirectional_dijkstra(timisoara_g, start_node, end_node, weight='length')
+
+    # Convertim în coordonate
+    coordonate_ruta = [(timisoara_g.nodes[n]['y'], timisoara_g.nodes[n]['x']) for n in ruta]
+
+    # Estimăm durata (pas pietonal: 5km/h = 5000m / 60min)
+    total_distance = sum(
+        geodesic(
+            (timisoara_g.nodes[ruta[i]]['y'], timisoara_g.nodes[ruta[i]]['x']),
+            (timisoara_g.nodes[ruta[i + 1]]['y'], timisoara_g.nodes[ruta[i + 1]]['x'])
+        ).meters for i in range(len(ruta) - 1)
+    )
+    duration_min = int(total_distance / (5000 / 60))
+
+    return coordonate_ruta, duration_min
 
 
 def obtine_ruta_ors(start, end, api_key):

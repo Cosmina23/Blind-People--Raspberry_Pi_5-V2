@@ -2,28 +2,41 @@
   "type": "locuri_vizitate",
   "locuri": [
     {
-      "data": "2025-06-08",
+      "data": "2025-06-22",
+      "lat": 45.7246,
+      "lng": 21.256,
+      "nr_vizite": 4,
+      "nume_loc": "Muzeul Apei Timișoara",
+      "nume_utilizator": "Cosmina",
+      "traseu_familiar_ids": []
+    },
+    {
+      "data": "2025-06-25",
+      "lat": 45.7325,
+      "lng": 21.2431,
+      "nr_vizite": 1,
+      "nume_loc": "parcul pădurice Timișoara",
+      "nume_utilizator": "Cosmina",
+      "traseu_familiar_ids": [
+        {
+          "lat": 45.7246,
+          "lng": 21.256
+        }
+      ]
+    },
+    {
+      "data": "2025-06-25",
       "lat": 45.7318,
       "lng": 21.2319,
-      "nr_vizite": 17,
-      "nume_loc": "Calea martirilor Timișoara",
-      "nume_utilizator": "Cosmina"
-    },
-    {
-      "data": "2025-06-08",
-      "lat": 45.7305,
-      "lng": 21.2319,
-      "nr_vizite": 3,
-      "nume_loc": "biserica martirilor",
-      "nume_utilizator": "Cosmina"
-    },
-    {
-      "data": "2025-06-08",
-      "lat": 45.7297,
-      "lng": 21.2203,
       "nr_vizite": 1,
-      "nume_loc": "strada Mureș Timișoara",
-      "nume_utilizator": "Cosmina"
+      "nume_loc": "Calea martirilor Timișoara",
+      "nume_utilizator": "Cosmina",
+      "traseu_familiar_ids": [
+        {
+          "lat": 45.7325,
+          "lng": 21.2431
+        }
+      ]
     }
   ]
 }
