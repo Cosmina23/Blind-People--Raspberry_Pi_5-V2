@@ -2,7 +2,7 @@ import websockets
 import json
 import asyncio
 from src.takeCredentials import autentificare
-from routing.rutare_principal import obtine_ruta, obtine_ruta_standard
+from routing.rutare_principal import obtine_ruta_segment,incarca_graf
 from src.indicatiiRutare import comenzi_deplasare
 from voice_interface.textToSpeech import speak_text
 from voice_interface.voiceToText import recognize_speech
@@ -11,10 +11,10 @@ from routing.pois import gaseste_puncte_pe_traseu
 from src.monitorizare_trecere import monitorizare_treceri
 from routing.detectare_treceri_traseu import genereaza_treceri_din_traseu
 from routing.noduri_familiare import gaseste_nod_familiar_modificat
-from utils.traseu_utils import elimina_coord_duplicate, decide_traseu
-from src.manager_file import incarca_vizite, salveaza_vizite, salveaza_ruta
+from utils.traseu_utils import elimina_coord_duplicate
+from src.manager_file import incarca_vizite, salveaza_vizite
 # import openrouteservice
-
+from routing.my_dijkstra import bidirectional_dijkstra_modificat
 
 current_app = None
 last_location = None
@@ -86,7 +86,7 @@ async def handle_connection(websocket, path=None):
             speak_text("Locația nu a fost identificată. Încercați din nou mai târziu.")
             return
 
-        indicatii, coordonate_ruta, durata_traseu = obtine_ruta(last_location, end)
+        _ , coordonate_ruta, durata_traseu = obtine_ruta_segment(last_location, end)
         speak_text(f"Traseul până la destinație durează aproximativ {durata_traseu} minute")
 
         opriri = []
@@ -130,36 +130,18 @@ async def handle_connection(websocket, path=None):
         nod_familiar_coord = (nod_familiar["lat"], nod_familiar["lng"]) if nod_familiar else None
         nod_familiar_nume = nod_familiar["nume"] if nod_familiar else None
 
-        if opriri:
-            traseu_logical = []
-            traseu_logical = decide_traseu(last_location, opriri[0], end, nod_familiar_coord)
-        elif nod_familiar_coord:
-            traseu_logical = [last_location, nod_familiar_coord, end]
-        else:
-            traseu_logical = [last_location, end]
+        graf = incarca_graf()
+        ruta_noduri, durata_totala = bidirectional_dijkstra_modificat(
+            G=graf,
+            start=last_location,
+            end=end,
+            oprire=opriri[0] if opriri else None,
+            nod_familiar=nod_familiar_coord
+        )
 
+        coordonate_totale = [(graf.nodes[n]['y'], graf.nodes[n]['x']) for n in ruta_noduri]
+        coordonate_totale = elimina_coord_duplicate(coordonate_totale)
 
-        indicatii_totale = []
-        coordonate_totale = []
-        durata_totala = 0
-
-
-        for i in range(len(traseu_logical) - 1):
-            p_start = traseu_logical[i]
-            p_end = traseu_logical[i + 1]
-
-            print(f"[DEBUG] Calculez segment: {p_start} -> {p_end}")
-    
-            try:
-                coordonate_partial, durata = obtine_ruta_standard(p_start, p_end)
-                indicatii_partial = [] 
-            except Exception as e:
-                print(f"[EROARE] Segmentul {p_start} -> {p_end}: {e}")
-                continue
-
-            indicatii_totale.extend(indicatii_partial)
-            coordonate_totale.extend(coordonate_partial if i == 0 else coordonate_partial[1:])
-            durata_totala += durata
 
 
         if nod_familiar_coord:
@@ -167,9 +149,7 @@ async def handle_connection(websocket, path=None):
 
         speak_text(f"Traseul complet durează aproximativ {durata_totala} minute.")
 
-        coordonate_totale = elimina_coord_duplicate(coordonate_totale)
-
-        salveaza_ruta(coordonate_totale, INDICATII_PATH, COORD_PATH, indicatii_totale)
+        #salveaza_ruta(coordonate_totale, INDICATII_PATH, COORD_PATH, indicatii_totale)
         genereaza_treceri_din_traseu(coordonate_totale)
 
 

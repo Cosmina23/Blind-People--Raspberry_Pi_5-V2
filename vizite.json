@@ -25,16 +25,30 @@
       ]
     },
     {
-      "data": "2025-06-25",
+      "data": "2025-06-27",
       "lat": 45.7318,
       "lng": 21.2319,
-      "nr_vizite": 1,
+      "nr_vizite": 4,
       "nume_loc": "Calea martirilor Timișoara",
       "nume_utilizator": "Cosmina",
       "traseu_familiar_ids": [
         {
           "lat": 45.7325,
           "lng": 21.2431
+        }
+      ]
+    },
+    {
+      "data": "2025-06-27",
+      "lat": 45.7305,
+      "lng": 21.2319,
+      "nr_vizite": 1,
+      "nume_loc": "biserica martirilor Timișoara",
+      "nume_utilizator": "Cosmina",
+      "traseu_familiar_ids": [
+        {
+          "lat": 45.7246,
+          "lng": 21.256
         }
       ]
     }

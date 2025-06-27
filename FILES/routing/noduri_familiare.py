@@ -1,5 +1,7 @@
-from routing.rutare_principal import obtine_ruta
+
 from geopy.distance import geodesic
+from routing.rutare_principal import incarca_graf
+from routing.my_dijkstra import bidirectional_dijkstra_modificat
 
 
 def scor_familiaritate(coord, distanta, nr_vizite, distanta_maxima = 2000):
@@ -52,7 +54,13 @@ def gaseste_nod_familiar(source_coord, target_coord, vizite_json, prag_diferenta
 
 def gaseste_nod_familiar_modificat(start, end, vizite_json):
     try:
-        _,_, durata_directa = obtine_ruta(start,end)
+        graf = incarca_graf()
+        _, durata_directa = bidirectional_dijkstra_modificat(
+            G=graf,
+            start=start,
+            end=end
+        )
+
         print(f'[NOD FAMILIAR] Durata direct: {durata_directa} min')
     except Exception as e:
         print(f'[NOD FAMILIAR] Eroare la ruta directa {e}')
@@ -66,7 +74,13 @@ def gaseste_nod_familiar_modificat(start, end, vizite_json):
         coord = (punct["lat"], punct["lng"])
         nr_vizite = punct["nr_vizite"]
         try:
-            _,_,durata_nod = obtine_ruta(start, end, nod_familiar = coord)
+            _, durata_nod = bidirectional_dijkstra_modificat(
+            G=graf,
+            start=start,
+            end=end,
+            nod_familiar=coord
+        )
+
             print(f'[NOD FAMILIAR] Ruta pt {coord} dureaza {durata_nod} min')
 
             if durata_nod <= durata_directa *1.3:

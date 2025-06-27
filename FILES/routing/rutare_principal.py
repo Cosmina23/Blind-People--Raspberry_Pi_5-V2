@@ -49,14 +49,15 @@ def nearest_point_on_edge(graf, point):
 
 def obtine_ruta_segment(start, end):
     graf = incarca_graf()
-    lista_vizite = incarca_vizite(FISIER_VIZITE)
 
-    start_node = nearest_node(graf, start)
-    end_node = nearest_node(graf, end)
-
-    _, ruta = bidirectional_dijkstra_modificat(
-        graf, start_node, end_node, lista_vizite, nod_intermediar=None
+    ruta, durata = bidirectional_dijkstra_modificat(
+        G=graf,
+        start=start,
+        end=end,
+        oprire=None,
+         nod_familiar=None
     )
+
 
     indicatii = []
     for i in range(len(ruta) - 2):
@@ -76,26 +77,40 @@ def obtine_ruta_segment(start, end):
 
     coordonate_ruta = [(graf.nodes[n]['y'], graf.nodes[n]['x']) for n in ruta]
     distanta = sum(geodesic(coordonate_ruta[i], coordonate_ruta[i + 1]).meters for i in range(len(coordonate_ruta) - 1))
-    durata = int(distanta / (5000 / 60))
+    # durata = int(distanta / (5000 / 60))
 
     return indicatii, coordonate_ruta, durata
 
-
 def obtine_ruta(start, end, nod_familiar=None, noduri_intermediare=None):
-    traseu = [start] + (noduri_intermediare or [])
-    if nod_familiar:
-        traseu.append(nod_familiar)
-    traseu.append(end)
+    graf = incarca_graf()
+    oprire = noduri_intermediare[0] if noduri_intermediare else None
 
-    toate_indicatiile, toate_coord, durata_totala = [], [], 0
+    ruta_noduri, durata_totala = bidirectional_dijkstra_modificat(
+        G=graf,
+        start=start,
+        end=end,
+        oprire=oprire,
+        nod_familiar=nod_familiar
+    )
 
-    for i in range(len(traseu) - 1):
-        ind, coord, durata = obtine_ruta_segment(traseu[i], traseu[i + 1])
-        toate_indicatiile.extend(ind)
-        toate_coord.extend(coord if i == 0 else coord[1:])
-        durata_totala += durata
+    coordonate_ruta = [(graf.nodes[n]['y'], graf.nodes[n]['x']) for n in ruta_noduri]
+    indicatii = []
+    for i in range(len(ruta_noduri) - 2):
+        u, v, w = ruta_noduri[i], ruta_noduri[i + 1], ruta_noduri[i + 2]
+        lat1, lon1 = graf.nodes[u]['y'], graf.nodes[u]['x']
+        lat2, lon2 = graf.nodes[v]['y'], graf.nodes[v]['x']
+        lat3, lon3 = graf.nodes[w]['y'], graf.nodes[w]['x']
 
-    return toate_indicatiile, toate_coord, durata_totala
+        angle = calculeaza_unghi((lat1, lon1), (lat2, lon2), (lat3, lon3))
+        directie = genereaza_indicatie(angle)
+
+        anticipare = f"In cativa pasi, {directie.lower()}."
+        final = f"Acum, {directie.lower()}."
+
+        indicatii.append({"lat": lat2, "lng": lon2, "text": {"lat": lat3, "lng": lon3, "text": anticipare}, "anuntata": False})
+        indicatii.append({"lat": lat3, "lng": lon3, "text": {"lat": lat3, "lng": lon3, "text": final}, "anuntata": False})
+
+    return indicatii, coordonate_ruta, durata_totala
 
 
 def obtine_ruta_standard(start, end):

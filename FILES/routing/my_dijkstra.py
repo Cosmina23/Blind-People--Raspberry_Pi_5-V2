@@ -86,43 +86,54 @@ def bidirectional_dijkstra(G, source, target, weight="weight"):
     raise nx.NetworkXNoPath(f"No path between {source} and {target}.")
 
 
+def decide_traseu(start, oprire, destinatie, nod_familiar=None):
+    traseu = [start]
 
-def bidirectional_dijkstra_modificat(G, source, target, vizite_json, nod_intermediar=None):
-    raw_coord_map = nx.get_node_attributes(G, 'coord')
-    if not raw_coord_map:
-        raise ValueError("Graful nu conține atributele coord pentru noduri")
+    if nod_familiar and oprire:
+        d_start_oprire = geodesic(start, oprire).meters
+        d_start_nod = geodesic(start, nod_familiar).meters
 
-    coord_map = {k: (round(v[0], 6), round(v[1], 6)) for k, v in raw_coord_map.items()}
-    inv_coord_map = {v: k for k, v in coord_map.items()}
-
-    source_coord = coord_map.get(source)
-    target_coord = coord_map.get(target)
-
-    if source_coord is None or target_coord is None:
-        print(f'[EROARE] coord_map nu conține nodurile {source} sau {target}')
-        raise ValueError("Nodurile nu au coordonate")
-
-    if nod_intermediar:
-        # convertim coordonata familiară într-un nod din graf
-        if nod_intermediar in inv_coord_map:
-            intermediar = inv_coord_map[nod_intermediar]
-            print(f"[DEBUG] Nod familiar găsit exact în graf: {intermediar}")
+        if d_start_oprire < d_start_nod:
+            traseu += [oprire, nod_familiar]
         else:
-            try:
-                intermediar = ox.distance.nearest_nodes(
-                    G,
-                    X=nod_intermediar[1],  # lng
-                    Y=nod_intermediar[0]   # lat
-                )
-                print(f"[DEBUG] Fallback: cel mai apropiat nod: {intermediar}")
-            except Exception as e:
-                print(f"[WARN] Eroare fallback nod familiar: {e}")
-                intermediar = None
+            traseu += [nod_familiar, oprire]
+    elif nod_familiar:
+        traseu.append(nod_familiar)
+    elif oprire:
+        traseu.append(oprire)
 
-        if intermediar:
-            dist1, path1 = bidirectional_dijkstra(G, source, intermediar)
-            dist2, path2 = bidirectional_dijkstra(G, intermediar, target)
-            return dist1 + dist2, path1[:-1] + path2
+    traseu.append(destinatie)
+    return traseu
 
-    # dacă nu avem intermediar, continuăm simplu
-    return bidirectional_dijkstra(G, source, target)
+def bidirectional_dijkstra_modificat(G, start, end, oprire=None, nod_familiar=None):
+    if nod_familiar is None:
+        nod_familiar = []
+
+    # Extragem nodul familiar din lista de vizite
+
+    # Determinăm traseul logic (în ordinea optimă)
+    traseu_coord = decide_traseu(start, oprire, end, nod_familiar)
+
+    # Convertim coordonatele în noduri din graf
+    noduri_traseu = []
+    for coord in traseu_coord:
+        nod = ox.distance.nearest_nodes(G, X=coord[1], Y=coord[0])
+        noduri_traseu.append(nod)
+
+    ruta_totala = []
+    durata_totala = 0
+
+    for i in range(len(noduri_traseu) - 1):
+        source = noduri_traseu[i]
+        target = noduri_traseu[i + 1]
+
+        dist, segment = bidirectional_dijkstra(G, source, target)
+
+        # evităm duplicarea nodurilor
+        if i > 0:
+            segment = segment[1:]
+
+        ruta_totala.extend(segment)
+        durata_totala += dist
+
+    return ruta_totala, durata_totala
