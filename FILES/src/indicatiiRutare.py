@@ -123,8 +123,16 @@ async def comenzi_deplasare(location_queue):
     print("[Asistent] Modulul de ghidare vocală a început.")
     indicatii = get_indicatii_ruta()
 
-    # Poți include și coordonatele pentru alte verificări
     coordonate = [{"latitude": i["lat"], "longitude": i["lng"]} for i in indicatii]
+
+    # Încarcă opririle și locațiile familiare
+    _, opriri = get_opriri()
+    opriri_efectuate = set()
+
+    locatii_familiare = incarca_locatii_vizitate()
+    familiari_anuntati = set()
+
+    destinatie_anuntata = False
 
     while True:
         try:
@@ -132,16 +140,16 @@ async def comenzi_deplasare(location_queue):
             lat_user = data.get("lat")
             lng_user = data.get("lng")
 
-            actualizat = False  # flag ca să știm dacă salvăm fișierul
+            actualizat = False
 
+            # 1. Parcurge indicațiile
             for instructiune in indicatii:
                 if instructiune.get("anuntata"):
                     continue
 
                 lat_ind = instructiune["lat"]
                 lng_ind = instructiune["lng"]
-
-                dist = calculate_distance(lat_user, lng_user, lat_ind, lng_ind) * 1000  # în metri
+                dist = calculate_distance(lat_user, lng_user, lat_ind, lng_ind) * 1000
 
                 if dist <= 4:
                     mesaj = instructiune.get("text", {}).get("text")
@@ -151,11 +159,40 @@ async def comenzi_deplasare(location_queue):
                         instructiune["anuntata"] = True
                         actualizat = True
 
-                        
+            # 2. Verifică opriri
+            for oprire in opriri:
+                lat_o = oprire["latitude"]
+                lng_o = oprire["longitude"]
+                d_oprire = calculate_distance(lat_user, lng_user, lat_o, lng_o) * 1000
+                if d_oprire <= 4 and (lat_o, lng_o) not in opriri_efectuate:
+                    speak_text("Ați ajuns la oprirea intermediară.")
+                    opriri_efectuate.add((lat_o, lng_o))
+                    print("[Asistent] Anunț oprire intermediară.")
+
+            # 3. Verifică locații familiare
+            for loc in locatii_familiare:
+                lat_fam = loc["lat"]
+                lng_fam = loc["lng"]
+                d_fam = calculate_distance(lat_user, lng_user, lat_fam, lng_fam) * 1000
+                if d_fam <= 4 and (lat_fam, lng_fam) not in familiari_anuntati:
+                    speak_text(f"Ați ajuns la locația cunoscută {loc.get('nume_loc', '')}.")
+                    familiari_anuntati.add((lat_fam, lng_fam))
+                    print("[Asistent] Anunț locație familiară.")
+
+            # 4. Verifică destinația finală
+            if len(indicatii) >= 1:
+                lat_dest = indicatii[-1]["lat"]
+                lng_dest = indicatii[-1]["lng"]
+                d_dest = calculate_distance(lat_user, lng_user, lat_dest, lng_dest) * 1000
+                if d_dest <= 4 and not destinatie_anuntata:
+                    speak_text("Ați ajuns la destinație.")
+                    destinatie_anuntata = True
+                    print("[Asistent] Anunț destinație.")
+
+            # 5. Salvează indicații actualizate
             if actualizat:
                 with open("indicatii_ruta.json", "w") as f:
                     json.dump(indicatii, f, indent=2)
-
 
         except Exception as e:
             print(f"[Asistent] Eroare la procesarea instrucțiunilor: {e}")

@@ -16,6 +16,7 @@ from src.manager_file import incarca_vizite, salveaza_vizite
 # import openrouteservice
 from routing.my_dijkstra import bidirectional_dijkstra_modificat
 from src.manager_file import salveaza_ruta
+from src.takeCredentials import get_input
 
 
 current_app = None
@@ -26,7 +27,7 @@ ORS_API_KEY = "5b3ce3597851110001cf62483ed29d9e4b9b47a58f40e20891efb908"
 # client = openrouteservice.Client(key=ORS_API_KEY)
 FISIER_VIZITE = "/home/cosmina/Documente/Proiect1/vizite.json"
 lista_vizite = incarca_vizite(FISIER_VIZITE)
-INDICATII_PATH = "indicatii_ruta.txt"
+INDICATII_PATH = "indicatii_ruta.json"
 COORD_PATH = "coordonate_ruta.json"
 
 async def primeste_mesaje(websocket):
@@ -79,7 +80,7 @@ async def handle_connection(websocket, path=None):
             await asyncio.sleep(0.5)
 
         speak_text("Spuneți adresa unde doriți să ajungeți.")
-        destinatie = await recognize_speech()
+        destinatie = await get_input()
         print(f"[Asistent] Destinație rostită: {destinatie}")
 
         end = await geocode_adresa(destinatie)
@@ -93,7 +94,7 @@ async def handle_connection(websocket, path=None):
 
         opriri = []
         speak_text("Doriți să faceți opriri pe drum? De exemplu, să căutăm un magazin?")
-        raspuns = await recognize_speech()
+        raspuns = await get_input()
 
         if any(cuv in raspuns.lower() for cuv in ["farmacie", "magazin", "cafenea", "restaurant", "benzinărie", "benzinarie"]):
             categorie = None
