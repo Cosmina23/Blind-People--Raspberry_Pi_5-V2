@@ -10,14 +10,16 @@ def salveaza_vizite(data, path):
         json.dump(data, f, indent=2, ensure_ascii=False)
 
 
-def salveaza_ruta(coordonate, ind_path, coord_path,indicatii=None,):
-    with open(ind_path, "w") as f:
-        for indicatie in (indicatii or []):
-            f.write(indicatie + "\n")
-
+def salveaza_ruta(coordonate, ind_path, coord_path, indicatii=None):
+    # Salvează coordonatele
     with open(coord_path, "w") as f:
         json.dump(
             [{"latitude": lat, "longitude": lng} for lat, lng in coordonate],
             f,
             indent=2
         )
+
+    # Salvează indicațiile ca JSON complet
+    if indicatii is not None:
+        with open(ind_path, "w") as f:
+            json.dump(indicatii, f, indent=2)

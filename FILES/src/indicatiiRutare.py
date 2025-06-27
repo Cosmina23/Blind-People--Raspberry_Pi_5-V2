@@ -41,6 +41,26 @@ def genereaza_indicatie(angle):
         return "La stanga"
     return "Inainte"
 
+
+def genereaza_indicatii_din_coordonate(coordonate):
+    indicatii = []
+    for i in range(len(coordonate) - 2):
+        p1 = (coordonate[i]["latitude"], coordonate[i]["longitude"])
+        p2 = (coordonate[i+1]["latitude"], coordonate[i+1]["longitude"])
+        p3 = (coordonate[i+2]["latitude"], coordonate[i+2]["longitude"])
+
+        unghi = calculeaza_unghi(p1, p2, p3)
+        directie = genereaza_indicatie(unghi)
+
+        anticipare = f"In cativa pasi, {directie.lower()}."
+        final = f"Acum, {directie.lower()}."
+
+        indicatii.append({"lat": p2[0], "lng": p2[1], "text": {"lat": p3[0], "lng": p3[1], "text": anticipare}, "anuntata": False})
+        indicatii.append({"lat": p3[0], "lng": p3[1], "text": {"lat": p3[0], "lng": p3[1], "text": final}, "anuntata": False})
+    
+    return indicatii
+
+
 async def geocode_adresa(adresa):
     try:
         if "timișoara" not in adresa.lower():
@@ -69,6 +89,16 @@ def get_indicatii():
 
     return indicatii, coordonate
 
+def get_indicatii_ruta():
+    try:
+        with open("indicatii_ruta.json", "r") as f:
+            indicatii = json.load(f)
+        return indicatii
+    except Exception as e:
+        print(f"[Indicatii] Eroare la citire JSON: {e}")
+        return []
+
+
 def get_opriri():
     try:
         with open("coordonate_ruta.json", "r") as f:
@@ -89,86 +119,43 @@ def incarca_locatii_vizitate(user_name="Cosmina"):
         print(f"[VIZITE] Eroare la citire vizite.json: {e}")
     return []
 
-
 async def comenzi_deplasare(location_queue):
     print("[Asistent] Modulul de ghidare vocală a început.")
-    indicatii, coordonate = get_indicatii()
+    indicatii = get_indicatii_ruta()
 
+    # Poți include și coordonatele pentru alte verificări
+    coordonate = [{"latitude": i["lat"], "longitude": i["lng"]} for i in indicatii]
 
-    _, opriri = get_opriri()
-
-    pas_curent = 0
-    opriri_efectuate = set()
-
-    # 1. Incarca locatiile vizitate (noduri familiare)
-    locatii_vizitate = incarca_locatii_vizitate(user_name=data.get("user", "Cosmina"))
-    locatii_familiare = []
-
-    for loc_viz in locatii_vizitate:
-        for idx, punct in enumerate(coordonate):
-            dist = calculate_distance(punct["latitude"], punct["longitude"], loc_viz["lat"], loc_viz["lng"]) * 1000
-            if dist <= PROXIMITY_METERS:
-                locatii_familiare.append({
-                    "nume": loc_viz.get("nume_loc", "loc cunoscut"),
-                    "index": idx
-                })
-
-    if locatii_familiare:
-        loc_familiar = sorted(locatii_familiare, key=lambda x: x["index"])[0]  # cel mai apropiat în ordine
-        msg_intro = f"Traseul include locația cunoscută salvată cu numele {loc_familiar['nume']}."
-
-        opriri_inainte = []
-        for oprire in opriri:
-            for i in range(0, loc_familiar["index"]):
-                punct = coordonate[i]
-                dist = calculate_distance(punct["latitude"], punct["longitude"], oprire["latitude"], oprire["longitude"]) * 1000
-                if dist <= PROXIMITY_METERS:
-                    opriri_inainte.append(oprire)
-
-        if opriri_inainte:
-            msg_intro += f" Dar mai întâi ajungem la oprirea intermediară."
-
-        print("[Asistent] Mesaj introductiv:", msg_intro)
-        speak_text(msg_intro)
-
-    while pas_curent < len(coordonate):
+    while True:
         try:
             data = await location_queue.get()
             lat_user = data.get("lat")
             lng_user = data.get("lng")
-            lat_end = coordonate[pas_curent]["latitude"]
-            lng_end = coordonate[pas_curent]["longitude"]
 
-            dist = calculate_distance(lat_user, lng_user, lat_end, lng_end) * 1000  # in metri
-            print(f"[Asistent] Distanță până la pasul {pas_curent + 1}: {dist:.1f} m")
+            actualizat = False  # flag ca să știm dacă salvăm fișierul
 
-            if 1.5 <= dist <= 3:
-                instructiune = indicatii[pas_curent]
-                mesaj = f"În câțiva pași, {instructiune.lower()}."
-                print(f"[Asistent] Instrucțiune anticipată: {mesaj}")
-                speak_text(mesaj)
+            for instructiune in indicatii:
+                if instructiune.get("anuntata"):
+                    continue
 
-            elif dist < 1.5:
-                instructiune = indicatii[pas_curent]
-                mesaj = f"Acum, {instructiune.lower()}."
-                print(f"[Asistent] Instrucțiune finală: {mesaj}")
-                speak_text(mesaj)
-                pas_curent += 1
+                lat_ind = instructiune["lat"]
+                lng_ind = instructiune["lng"]
 
+                dist = calculate_distance(lat_user, lng_user, lat_ind, lng_ind) * 1000  # în metri
 
-            for oprire in opriri:
-                o_lat = oprire["latitude"]
-                o_lng = oprire["longitude"]
-                d_oprire = calculate_distance(lat_user, lng_user, o_lat, o_lng) * 1000
-                if d_oprire <= PROXIMITY_METERS and (o_lat, o_lng) not in opriri_efectuate:
-                    speak_text("Ați ajuns la oprirea intermediară.")
-                    print("[Asistent] Utilizatorul a ajuns la o oprire.")
-                    opriri_efectuate.add((o_lat, o_lng))
+                if dist <= 4:
+                    mesaj = instructiune.get("text", {}).get("text")
+                    if mesaj:
+                        print(f"[Asistent] Redau instrucțiune: {mesaj}")
+                        speak_text(mesaj)
+                        instructiune["anuntata"] = True
+                        actualizat = True
 
-            if pas_curent == len(coordonate):
-                await asyncio.sleep(1)
-                speak_text("Ați ajuns la destinație.")
-                break
+                        
+            if actualizat:
+                with open("indicatii_ruta.json", "w") as f:
+                    json.dump(indicatii, f, indent=2)
+
 
         except Exception as e:
             print(f"[Asistent] Eroare la procesarea instrucțiunilor: {e}")

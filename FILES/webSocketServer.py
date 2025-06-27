@@ -3,7 +3,7 @@ import json
 import asyncio
 from src.takeCredentials import autentificare
 from routing.rutare_principal import obtine_ruta_segment,incarca_graf
-from src.indicatiiRutare import comenzi_deplasare
+from src.indicatiiRutare import comenzi_deplasare, genereaza_indicatii_din_coordonate
 from voice_interface.textToSpeech import speak_text
 from voice_interface.voiceToText import recognize_speech
 from src.indicatiiRutare import geocode_adresa
@@ -15,6 +15,8 @@ from utils.traseu_utils import elimina_coord_duplicate
 from src.manager_file import incarca_vizite, salveaza_vizite
 # import openrouteservice
 from routing.my_dijkstra import bidirectional_dijkstra_modificat
+from src.manager_file import salveaza_ruta
+
 
 current_app = None
 last_location = None
@@ -143,6 +145,14 @@ async def handle_connection(websocket, path=None):
         coordonate_totale = elimina_coord_duplicate(coordonate_totale)
 
 
+        coordonate_dict = [{"latitude": lat, "longitude": lng} for lat, lng in coordonate_totale]
+        indicatii_totale = genereaza_indicatii_din_coordonate(coordonate_dict)
+        salveaza_ruta(
+            coordonate=coordonate_totale,
+            ind_path=INDICATII_PATH,
+            coord_path=COORD_PATH,
+            indicatii=indicatii_totale
+        )
 
         if nod_familiar_coord:
             speak_text(f"Traseul include locația familiară salvată cu numele {nod_familiar_nume}.")
