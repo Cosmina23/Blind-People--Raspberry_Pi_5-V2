@@ -14,7 +14,7 @@
       "data": "2025-06-25",
       "lat": 45.7325,
       "lng": 21.2431,
-      "nr_vizite": 1,
+      "nr_vizite": 2,
       "nume_loc": "parcul pădurice Timișoara",
       "nume_utilizator": "Cosmina",
       "traseu_familiar_ids": [
@@ -25,10 +25,10 @@
       ]
     },
     {
-      "data": "2025-06-27",
+      "data": "2025-06-28",
       "lat": 45.7318,
       "lng": 21.2319,
-      "nr_vizite": 6,
+      "nr_vizite": 10,
       "nume_loc": "Calea martirilor Timișoara",
       "nume_utilizator": "Cosmina",
       "traseu_familiar_ids": [

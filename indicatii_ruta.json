@@ -243,739 +243,419 @@
     "lat": 45.7276239,
     "lng": 21.2505761,
     "text": {
-      "lat": 45.726126,
-      "lng": 21.2503964,
-      "text": "In cativa pasi, la stanga."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.726126,
-    "lng": 21.2503964,
-    "text": {
-      "lat": 45.726126,
-      "lng": 21.2503964,
-      "text": "Acum, la stanga."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.726126,
-    "lng": 21.2503964,
-    "text": {
-      "lat": 45.7255062,
-      "lng": 21.2503079,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7255062,
-    "lng": 21.2503079,
-    "text": {
-      "lat": 45.7255062,
-      "lng": 21.2503079,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7255062,
-    "lng": 21.2503079,
-    "text": {
-      "lat": 45.7248204,
-      "lng": 21.2502374,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248204,
-    "lng": 21.2502374,
-    "text": {
-      "lat": 45.7248204,
-      "lng": 21.2502374,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248204,
-    "lng": 21.2502374,
-    "text": {
-      "lat": 45.7248278,
-      "lng": 21.2488879,
+      "lat": 45.7280425,
+      "lng": 21.2506189,
       "text": "In cativa pasi, la dreapta."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7248278,
-    "lng": 21.2488879,
+    "lat": 45.7280425,
+    "lng": 21.2506189,
     "text": {
-      "lat": 45.7248278,
-      "lng": 21.2488879,
+      "lat": 45.7280425,
+      "lng": 21.2506189,
       "text": "Acum, la dreapta."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7248278,
-    "lng": 21.2488879,
+    "lat": 45.7280425,
+    "lng": 21.2506189,
     "text": {
-      "lat": 45.7248368,
-      "lng": 21.2487912,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248368,
-    "lng": 21.2487912,
-    "text": {
-      "lat": 45.7248368,
-      "lng": 21.2487912,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248368,
-    "lng": 21.2487912,
-    "text": {
-      "lat": 45.7248329,
-      "lng": 21.2479789,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248329,
-    "lng": 21.2479789,
-    "text": {
-      "lat": 45.7248329,
-      "lng": 21.2479789,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248329,
-    "lng": 21.2479789,
-    "text": {
-      "lat": 45.7248312,
-      "lng": 21.2471959,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248312,
-    "lng": 21.2471959,
-    "text": {
-      "lat": 45.7248312,
-      "lng": 21.2471959,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248312,
-    "lng": 21.2471959,
-    "text": {
-      "lat": 45.7248318,
-      "lng": 21.2467629,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248318,
-    "lng": 21.2467629,
-    "text": {
-      "lat": 45.7248318,
-      "lng": 21.2467629,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248318,
-    "lng": 21.2467629,
-    "text": {
-      "lat": 45.7248322,
-      "lng": 21.2464093,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248322,
-    "lng": 21.2464093,
-    "text": {
-      "lat": 45.7248322,
-      "lng": 21.2464093,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248322,
-    "lng": 21.2464093,
-    "text": {
-      "lat": 45.7248525,
-      "lng": 21.2452922,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248525,
-    "lng": 21.2452922,
-    "text": {
-      "lat": 45.7248525,
-      "lng": 21.2452922,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248525,
-    "lng": 21.2452922,
-    "text": {
-      "lat": 45.72485,
-      "lng": 21.2451574,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.72485,
-    "lng": 21.2451574,
-    "text": {
-      "lat": 45.72485,
-      "lng": 21.2451574,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.72485,
-    "lng": 21.2451574,
-    "text": {
-      "lat": 45.7248489,
-      "lng": 21.2447942,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248489,
-    "lng": 21.2447942,
-    "text": {
-      "lat": 45.7248489,
-      "lng": 21.2447942,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248489,
-    "lng": 21.2447942,
-    "text": {
-      "lat": 45.7248489,
-      "lng": 21.2430593,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248489,
-    "lng": 21.2430593,
-    "text": {
-      "lat": 45.7248489,
-      "lng": 21.2430593,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248489,
-    "lng": 21.2430593,
-    "text": {
-      "lat": 45.7248452,
-      "lng": 21.2424093,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248452,
-    "lng": 21.2424093,
-    "text": {
-      "lat": 45.7248452,
-      "lng": 21.2424093,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248452,
-    "lng": 21.2424093,
-    "text": {
-      "lat": 45.7248572,
-      "lng": 21.2419864,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248572,
-    "lng": 21.2419864,
-    "text": {
-      "lat": 45.7248572,
-      "lng": 21.2419864,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248572,
-    "lng": 21.2419864,
-    "text": {
-      "lat": 45.7248461,
-      "lng": 21.2418906,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248461,
-    "lng": 21.2418906,
-    "text": {
-      "lat": 45.7248461,
-      "lng": 21.2418906,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248461,
-    "lng": 21.2418906,
-    "text": {
-      "lat": 45.7249462,
-      "lng": 21.2404199,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7249462,
-    "lng": 21.2404199,
-    "text": {
-      "lat": 45.7249462,
-      "lng": 21.2404199,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7249462,
-    "lng": 21.2404199,
-    "text": {
-      "lat": 45.7248909,
-      "lng": 21.2395183,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248909,
-    "lng": 21.2395183,
-    "text": {
-      "lat": 45.7248909,
-      "lng": 21.2395183,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248909,
-    "lng": 21.2395183,
-    "text": {
-      "lat": 45.7248874,
-      "lng": 21.2391941,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248874,
-    "lng": 21.2391941,
-    "text": {
-      "lat": 45.7248874,
-      "lng": 21.2391941,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248874,
-    "lng": 21.2391941,
-    "text": {
-      "lat": 45.7248714,
-      "lng": 21.2384796,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248714,
-    "lng": 21.2384796,
-    "text": {
-      "lat": 45.7248714,
-      "lng": 21.2384796,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248714,
-    "lng": 21.2384796,
-    "text": {
-      "lat": 45.7248373,
-      "lng": 21.238477,
+      "lat": 45.7280788,
+      "lng": 21.249815,
       "text": "In cativa pasi, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7248373,
-    "lng": 21.238477,
+    "lat": 45.7280788,
+    "lng": 21.249815,
     "text": {
-      "lat": 45.7248373,
-      "lng": 21.238477,
+      "lat": 45.7280788,
+      "lng": 21.249815,
       "text": "Acum, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7248373,
-    "lng": 21.238477,
+    "lat": 45.7280788,
+    "lng": 21.249815,
     "text": {
-      "lat": 45.7248098,
-      "lng": 21.2367855,
-      "text": "In cativa pasi, la dreapta."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248098,
-    "lng": 21.2367855,
-    "text": {
-      "lat": 45.7248098,
-      "lng": 21.2367855,
-      "text": "Acum, la dreapta."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7248098,
-    "lng": 21.2367855,
-    "text": {
-      "lat": 45.7248696,
-      "lng": 21.2366075,
+      "lat": 45.7280911,
+      "lng": 21.2495354,
       "text": "In cativa pasi, inainte."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7248696,
-    "lng": 21.2366075,
+    "lat": 45.7280911,
+    "lng": 21.2495354,
     "text": {
-      "lat": 45.7248696,
-      "lng": 21.2366075,
+      "lat": 45.7280911,
+      "lng": 21.2495354,
       "text": "Acum, inainte."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7248696,
-    "lng": 21.2366075,
+    "lat": 45.7280911,
+    "lng": 21.2495354,
     "text": {
-      "lat": 45.724746,
-      "lng": 21.2365938,
+      "lat": 45.7297432,
+      "lng": 21.2497614,
+      "text": "In cativa pasi, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7297432,
+    "lng": 21.2497614,
+    "text": {
+      "lat": 45.7297432,
+      "lng": 21.2497614,
+      "text": "Acum, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7297432,
+    "lng": 21.2497614,
+    "text": {
+      "lat": 45.730869,
+      "lng": 21.2499278,
+      "text": "In cativa pasi, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.730869,
+    "lng": 21.2499278,
+    "text": {
+      "lat": 45.730869,
+      "lng": 21.2499278,
+      "text": "Acum, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.730869,
+    "lng": 21.2499278,
+    "text": {
+      "lat": 45.730875,
+      "lng": 21.2498238,
       "text": "In cativa pasi, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.724746,
-    "lng": 21.2365938,
+    "lat": 45.730875,
+    "lng": 21.2498238,
     "text": {
-      "lat": 45.724746,
-      "lng": 21.2365938,
+      "lat": 45.730875,
+      "lng": 21.2498238,
       "text": "Acum, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.724746,
-    "lng": 21.2365938,
+    "lat": 45.730875,
+    "lng": 21.2498238,
     "text": {
-      "lat": 45.7247828,
-      "lng": 21.2347532,
+      "lat": 45.7309879,
+      "lng": 21.2498417,
       "text": "In cativa pasi, la dreapta."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7247828,
-    "lng": 21.2347532,
+    "lat": 45.7309879,
+    "lng": 21.2498417,
     "text": {
-      "lat": 45.7247828,
-      "lng": 21.2347532,
+      "lat": 45.7309879,
+      "lng": 21.2498417,
       "text": "Acum, la dreapta."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7247828,
-    "lng": 21.2347532,
+    "lat": 45.7309879,
+    "lng": 21.2498417,
     "text": {
-      "lat": 45.7288915,
-      "lng": 21.2351936,
-      "text": "In cativa pasi, la dreapta."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7288915,
-    "lng": 21.2351936,
-    "text": {
-      "lat": 45.7288915,
-      "lng": 21.2351936,
-      "text": "Acum, la dreapta."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7288915,
-    "lng": 21.2351936,
-    "text": {
-      "lat": 45.7289768,
-      "lng": 21.2337877,
+      "lat": 45.7310001,
+      "lng": 21.2496454,
       "text": "In cativa pasi, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7289768,
-    "lng": 21.2337877,
+    "lat": 45.7310001,
+    "lng": 21.2496454,
     "text": {
-      "lat": 45.7289768,
-      "lng": 21.2337877,
+      "lat": 45.7310001,
+      "lng": 21.2496454,
       "text": "Acum, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7289768,
-    "lng": 21.2337877,
+    "lat": 45.7310001,
+    "lng": 21.2496454,
     "text": {
-      "lat": 45.7294029,
-      "lng": 21.2338494,
-      "text": "In cativa pasi, la dreapta."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7294029,
-    "lng": 21.2338494,
-    "text": {
-      "lat": 45.7294029,
-      "lng": 21.2338494,
-      "text": "Acum, la dreapta."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7294029,
-    "lng": 21.2338494,
-    "text": {
-      "lat": 45.7298767,
-      "lng": 21.233918,
+      "lat": 45.73127,
+      "lng": 21.2474922,
       "text": "In cativa pasi, inainte."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7298767,
-    "lng": 21.233918,
+    "lat": 45.73127,
+    "lng": 21.2474922,
     "text": {
-      "lat": 45.7298767,
-      "lng": 21.233918,
+      "lat": 45.73127,
+      "lng": 21.2474922,
       "text": "Acum, inainte."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7298767,
-    "lng": 21.233918,
+    "lat": 45.73127,
+    "lng": 21.2474922,
     "text": {
-      "lat": 45.7308137,
-      "lng": 21.2340151,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7308137,
-    "lng": 21.2340151,
-    "text": {
-      "lat": 45.7308137,
-      "lng": 21.2340151,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7308137,
-    "lng": 21.2340151,
-    "text": {
-      "lat": 45.7312564,
-      "lng": 21.2340692,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7312564,
-    "lng": 21.2340692,
-    "text": {
-      "lat": 45.7312564,
-      "lng": 21.2340692,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7312564,
-    "lng": 21.2340692,
-    "text": {
-      "lat": 45.7313236,
-      "lng": 21.2340771,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7313236,
-    "lng": 21.2340771,
-    "text": {
-      "lat": 45.7313236,
-      "lng": 21.2340771,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7313236,
-    "lng": 21.2340771,
-    "text": {
-      "lat": 45.7317207,
-      "lng": 21.2341182,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7317207,
-    "lng": 21.2341182,
-    "text": {
-      "lat": 45.7317207,
-      "lng": 21.2341182,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7317207,
-    "lng": 21.2341182,
-    "text": {
-      "lat": 45.7318316,
-      "lng": 21.2341297,
-      "text": "In cativa pasi, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7318316,
-    "lng": 21.2341297,
-    "text": {
-      "lat": 45.7318316,
-      "lng": 21.2341297,
-      "text": "Acum, inainte."
-    },
-    "anuntata": false
-  },
-  {
-    "lat": 45.7318316,
-    "lng": 21.2341297,
-    "text": {
-      "lat": 45.7319034,
-      "lng": 21.2327505,
+      "lat": 45.7310131,
+      "lng": 21.2472931,
       "text": "In cativa pasi, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7319034,
-    "lng": 21.2327505,
+    "lat": 45.7310131,
+    "lng": 21.2472931,
     "text": {
-      "lat": 45.7319034,
-      "lng": 21.2327505,
+      "lat": 45.7310131,
+      "lng": 21.2472931,
       "text": "Acum, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7319034,
-    "lng": 21.2327505,
+    "lat": 45.7310131,
+    "lng": 21.2472931,
     "text": {
-      "lat": 45.7319917,
-      "lng": 21.2327578,
+      "lat": 45.7310426,
+      "lng": 21.2466561,
       "text": "In cativa pasi, la dreapta."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7319917,
-    "lng": 21.2327578,
+    "lat": 45.7310426,
+    "lng": 21.2466561,
     "text": {
-      "lat": 45.7319917,
-      "lng": 21.2327578,
+      "lat": 45.7310426,
+      "lng": 21.2466561,
       "text": "Acum, la dreapta."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7319917,
-    "lng": 21.2327578,
+    "lat": 45.7310426,
+    "lng": 21.2466561,
     "text": {
-      "lat": 45.7320226,
-      "lng": 21.2320092,
+      "lat": 45.7311189,
+      "lng": 21.2465528,
+      "text": "In cativa pasi, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7311189,
+    "lng": 21.2465528,
+    "text": {
+      "lat": 45.7311189,
+      "lng": 21.2465528,
+      "text": "Acum, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7311189,
+    "lng": 21.2465528,
+    "text": {
+      "lat": 45.731398,
+      "lng": 21.2464482,
+      "text": "In cativa pasi, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.731398,
+    "lng": 21.2464482,
+    "text": {
+      "lat": 45.731398,
+      "lng": 21.2464482,
+      "text": "Acum, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.731398,
+    "lng": 21.2464482,
+    "text": {
+      "lat": 45.7313358,
+      "lng": 21.246286,
       "text": "In cativa pasi, la stanga."
     },
     "anuntata": false
   },
   {
-    "lat": 45.7320226,
-    "lng": 21.2320092,
+    "lat": 45.7313358,
+    "lng": 21.246286,
     "text": {
-      "lat": 45.7320226,
-      "lng": 21.2320092,
+      "lat": 45.7313358,
+      "lng": 21.246286,
       "text": "Acum, la stanga."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7313358,
+    "lng": 21.246286,
+    "text": {
+      "lat": 45.7313678,
+      "lng": 21.2450848,
+      "text": "In cativa pasi, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7313678,
+    "lng": 21.2450848,
+    "text": {
+      "lat": 45.7313678,
+      "lng": 21.2450848,
+      "text": "Acum, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7313678,
+    "lng": 21.2450848,
+    "text": {
+      "lat": 45.7317857,
+      "lng": 21.2451299,
+      "text": "In cativa pasi, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7317857,
+    "lng": 21.2451299,
+    "text": {
+      "lat": 45.7317857,
+      "lng": 21.2451299,
+      "text": "Acum, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7317857,
+    "lng": 21.2451299,
+    "text": {
+      "lat": 45.7317941,
+      "lng": 21.2450052,
+      "text": "In cativa pasi, la stanga."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7317941,
+    "lng": 21.2450052,
+    "text": {
+      "lat": 45.7317941,
+      "lng": 21.2450052,
+      "text": "Acum, la stanga."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7317941,
+    "lng": 21.2450052,
+    "text": {
+      "lat": 45.7318569,
+      "lng": 21.2444231,
+      "text": "In cativa pasi, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7318569,
+    "lng": 21.2444231,
+    "text": {
+      "lat": 45.7318569,
+      "lng": 21.2444231,
+      "text": "Acum, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7318569,
+    "lng": 21.2444231,
+    "text": {
+      "lat": 45.73203,
+      "lng": 21.2437686,
+      "text": "In cativa pasi, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.73203,
+    "lng": 21.2437686,
+    "text": {
+      "lat": 45.73203,
+      "lng": 21.2437686,
+      "text": "Acum, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.73203,
+    "lng": 21.2437686,
+    "text": {
+      "lat": 45.7320538,
+      "lng": 21.2432121,
+      "text": "In cativa pasi, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7320538,
+    "lng": 21.2432121,
+    "text": {
+      "lat": 45.7320538,
+      "lng": 21.2432121,
+      "text": "Acum, inainte."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7320538,
+    "lng": 21.2432121,
+    "text": {
+      "lat": 45.7322005,
+      "lng": 21.2432163,
+      "text": "In cativa pasi, la dreapta."
+    },
+    "anuntata": false
+  },
+  {
+    "lat": 45.7322005,
+    "lng": 21.2432163,
+    "text": {
+      "lat": 45.7322005,
+      "lng": 21.2432163,
+      "text": "Acum, la dreapta."
     },
     "anuntata": false
   }
