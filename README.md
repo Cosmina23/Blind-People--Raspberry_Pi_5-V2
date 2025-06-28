@@ -38,34 +38,7 @@ python ./backend/app.py
 
 ---
 
-### 2. Frontend (React Native + Expo)
-
-#### a. Instalează Node.js 
-#### b. Instalează Expo CLI:
-```bash
-npm install -g expo-cli
-```
-
-#### c. Intră în folderul frontend:
-```bash
-cd BACAKDEV/VocaProject
-```
-
-#### d. Instalează dependențele:
-```bash
-npm install
-```
-
-#### e. Rulează aplicația:
-```bash
-npx expo start --tunnel
-```
-
-#### f. Deschide aplicația cu **Expo Go** pe telefon (QR code generat)
-
----
-
-### 3. Raspberry Pi 5
+### 2. Raspberry Pi 5
 #### Cerințe
 - Python 3.8+
 - [Ngrok](https://ngrok.com/)
@@ -98,3 +71,29 @@ ngrok http 8765
 ```bash
 python ./FILES/main.py
 ```
+
+
+### 3. Frontend (React Native + Expo)
+
+#### a. Instalează Node.js 
+#### b. Instalează Expo CLI:
+```bash
+npm install -g expo-cli
+```
+
+#### c. Intră în folderul frontend:
+```bash
+cd BACAKDEV/VocaProject
+```
+
+#### d. Instalează dependențele:
+```bash
+npm install
+```
+
+#### e. Rulează aplicația:
+```bash
+npx expo start --tunnel
+```
+
+#### f. Deschide aplicația cu **Expo Go** pe telefon (QR code generat)
