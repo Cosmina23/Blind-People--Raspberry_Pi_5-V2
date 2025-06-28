@@ -65,7 +65,7 @@ npx expo start --tunnel
 
 ---
 
-### 2. Raspberry Pi 5
+### 3. Raspberry Pi 5
 #### Cerințe
 - Python 3.8+
 - [Ngrok](https://ngrok.com/)
