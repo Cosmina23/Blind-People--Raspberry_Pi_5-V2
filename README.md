@@ -66,4 +66,35 @@ npx expo start --tunnel
 ---
 
 ### 2. Raspberry Pi 5
-Necesită doar alimentare.
+#### Cerințe
+- Python 3.8+
+- [Ngrok](https://ngrok.com/)
+- Microfon funcțional
+- Sistem de operare: Linux (testat pe Ubuntu)
+
+#### a. Instalarea bibliotecilor necesare
+```bash
+pip install -r requirements.txt
+```
+
+#### b. Creare mediu virtual 
+```bash
+python3 -m venv venv
+source venv/bin/activate 
+```
+
+#### c. Pornire server WebSocket
+```bash
+python server.py
+```
+
+#### d. Pornire tunel Ngrok (pentru acces extern, dacă este cazul)
+```bash
+ngrok http 8765
+```
+
+
+#### e. Pornirea programului principal din mediul virtual
+```bash
+python ./FILES/main.py
+```
